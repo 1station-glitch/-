@@ -1,63 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بيانات العميل</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        .form-container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-container h2 {
-            margin-bottom: 20px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #5cb85c;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #4cae4c;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نموذج بيانات الشحن</title>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    padding: 30px;
+    direction: rtl;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: auto;
+    background: #ffffff;
+    padding: 25px 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #203a43;
+  }
+
+  label {
+    font-weight: 600;
+    color: #333;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 14px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+  }
+
+  .note, .warning {
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .note {
+    background: linear-gradient(135deg, #e3f2fd, #f1f8ff);
+    border-right: 5px solid #1e88e5;
+    color: #0d47a1;
+    display: none;
+  }
+
+  .warning {
+    background: #ffebee;
+    border-right: 5px solid #d32f2f;
+    color: #b71c1c;
+    display: none;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    background: linear-gradient(135deg, #1e88e5, #1565c0);
+    color: white;
+  }
+</style>
 </head>
 <body>
-    <div class="form-container">
-        <h2>إدخال البيانات</h2>
-        <form>
-            <input type="text" placeholder="أدخل اسم العميل" required>
-            <input type="text" placeholder="أدخل اسم المدينة" required>
-            <input type="text" placeholder="أدخل الحي" required>
-            <input type="number" placeholder="أدخل رقم هاتف" required>
-            <input type="text" placeholder="أدخل اسم الشارع" required>
-            <input type="number" placeholder="أدخل الوزن" required>
-            <button type="submit">إرسال</button>
-        </form>
-    </div>
+
+<div class="container">
+  <h2>📦 نموذج بيانات الشحن</h2>
+
+  <!-- Formspree form -->
+  <form id="shippingForm" action="https://formspree.io/f/mlgrgjgp" method="POST" target="_blank">
+    <h3>بيانات المرسل</h3>
+    <label>الاسم</label>
+    <input type="text" name="sender_name" required>
+
+    <label>رقم الهاتف</label>
+    <input type="tel" name="sender_phone" pattern="[0-9]*" inputmode="numeric" required>
+
+    <label>المدينة</label>
+    <input type="text" name="sender_city" required>
+
+    <label>الحي</label>
+    <input type="text" name="sender_district" required>
+
+    <label>الشارع</label>
+    <input type="text" name="sender_street" required>
+
+    <h3>بيانات المستلم</h3>
+    <label>الاسم</label>
+    <input type="text" name="receiver_name" required>
+
+    <label>رقم الهاتف</label>
+    <input type="tel" name="receiver_phone" pattern="[0-9]*" inputmode="numeric" required>
+
+    <label>المدينة</label>
+    <input type="text" name="receiver_city" required>
+
+    <label>الحي</label>
+    <input type="text" name="receiver_district" required>
+
+    <label>الشارع</label>
+    <input type="text" name="receiver_street" required>
+
+    <h3>تفاصيل الشحنة</h3>
+    <label>وزن الشحنة (كجم)</label>
+    <input type="number" id="weight" name="weight" min="1" required>
+
+    <label>قيمة المنتجات (ريال)</label>
+    <input type="number" name="value" required>
+
+    <label>شركة الشحن</label>
+    <select id="shippingCompany" name="company" required>
+      <option value="">اختر شركة الشحن</option>
+      <option value="aramex">أرامكس</option>
+      <option value="redbox">ريد بوكس</option>
+    </select>
+
+    <div id="priceNote" class="note"></div>
+    <div id="weightWarning" class="warning">🚨 الوزن غير مسموح لشركة ريد بوكس!</div>
+
+    <button type="submit">إرسال البيانات</button>
+  </form>
+</div>
+
+<script>
+const weightInput = document.getElementById("weight");
+const companySelect = document.getElementById("shippingCompany");
+const priceNote = document.getElementById("priceNote");
+const weightWarning = document.getElementById("weightWarning");
+
+function updatePriceNote() {
+  const weight = Number(weightInput.value);
+  const company = companySelect.value;
+  priceNote.style.display = "none";
+  priceNote.innerHTML = "";
+  weightWarning.style.display = "none";
+
+  if (!weight || !company) return;
+
+  let price = 0;
+  if (company === "redbox") {
+    if (weight > 15) {
+      weightWarning.style.display = "block";
+      price = 0;
+    } else {
+      price = 17;
+    }
+  } else if (company === "aramex") {
+    price = weight <= 15 ? 23 : 23 + ((weight-15)*2);
+  }
+
+  if (price > 0) {
+    priceNote.innerHTML = `💰 السعر: ${price} ريال`;
+    priceNote.style.display = "block";
+  }
+}
+
+weightInput.addEventListener("input", updatePriceNote);
+companySelect.addEventListener("change", updatePriceNote);
+</script>
+
 </body>
 </html>
