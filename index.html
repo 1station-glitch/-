@@ -114,10 +114,12 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
       <label>رقم الهاتف</label>
       <input type="tel" name="sender_phone" pattern="[0-9]*" inputmode="numeric" required>
     </div>
-    <div class="form-group">
-      <label>المدينة</label>
-      <input type="text" name="sender_city" placeholder="اكتب المدينة" required>
-    </div>
+   <div class="form-group">
+  <label>المدينة</label>
+  <select name="sender_city" id="senderCity" required>
+    <option value="">اختر المدينة</option>
+  </select>
+</div>
     <div class="form-group">
       <label>الحي</label>
       <input type="text" name="sender_district" required>
@@ -136,10 +138,12 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
       <label>رقم الهاتف</label>
       <input type="tel" name="receiver_phone" pattern="[0-9]*" inputmode="numeric" required>
     </div>
-    <div class="form-group">
-      <label>المدينة</label>
-      <input type="text" name="receiver_city" placeholder="اكتب المدينة" required>
-    </div>
+<div class="form-group">
+  <label>المدينة</label>
+  <select name="receiver_city" id="receiverCity" required>
+    <option value="">اختر المدينة</option>
+  </select>
+</div>
     <div class="form-group">
       <label>الحي</label>
       <input type="text" name="receiver_district" required>
@@ -366,6 +370,33 @@ function confirmAramexWarning(){
   updatePriceNote();
 }
 </script>
+  <script>
+function loadCities() {
+  fetch('saudi_cities.json')
+    .then(res => res.json())
+    .then(data => {
+      const senderSelect = document.getElementById('senderCity');
+      const receiverSelect = document.getElementById('receiverCity');
+
+      data.cities.forEach(city => {
+        const option1 = document.createElement('option');
+        option1.value = city;
+        option1.textContent = city;
+        senderSelect.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = city;
+        option2.textContent = city;
+        receiverSelect.appendChild(option2);
+      });
+    })
+    .catch(err => console.error('خطأ في تحميل المدن:', err));
+}
+
+// تحميل المدن عند فتح الصفحة
+window.addEventListener('DOMContentLoaded', loadCities);
+</script>
+
 </body>
 </html>
 ```
