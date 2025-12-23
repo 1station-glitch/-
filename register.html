@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تسجيل حساب جديد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- إعدادات أساسية --- */
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('bg.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;
+            min-height: 100vh; min-height: 100dvh; 
+            display: flex; justify-content: center; align-items: center;
+            margin: 0; padding: 15px;
+        }
+        
+        /* البطاقة */
+        .register-card { 
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
+            padding: 25px 20px; width: 100%; max-width: 380px;
+            border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            text-align: center; 
+        }
+        
+        .register-card h2 { margin-top: 0; margin-bottom: 20px; color: #1f2937; font-size: 22px; font-weight: 800; }
+        
+        .input-group { margin-bottom: 12px; text-align: right; }
+        .input-group label { display: block; margin-bottom: 6px; color: #374151; font-size: 13px; font-weight: 700; }
+        
+        input { 
+            width: 100%; padding: 12px 14px; border: 1px solid #d1d5db; 
+            border-radius: 10px; outline: none; transition: 0.3s; 
+            font-size: 16px; background-color: #f9fafb;
+        }
+        input:focus { border-color: #3b82f6; background-color: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+
+        /* --- تصميم مربع الموافقة (جديد) --- */
+        .terms-container {
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 15px; margin-bottom: 15px;
+            font-size: 13px; color: #4b5563; font-weight: 600;
+            text-align: right;
+        }
+        .terms-container input[type="checkbox"] {
+            width: 18px; height: 18px; accent-color: #3b82f6; cursor: pointer;
+        }
+        .terms-link {
+            color: #3b82f6; text-decoration: underline; cursor: pointer; font-weight: bold;
+        }
+
+        /* الزر */
+        button { 
+            width: 100%; padding: 14px; background-color: #3b82f6; 
+            color: white; border: none; border-radius: 10px; cursor: pointer; 
+            font-size: 16px; font-weight: 700; transition: 0.2s;
+        }
+        button:hover { background-color: #2563eb; }
+        button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+        .login-link-container { margin-top: 20px; font-size: 14px; color: #4b5563; }
+        .login-link-container a { color: #3b82f6; text-decoration: none; font-weight: bold; }
+
+        /* --- ستايل المودال (التنبيهات + السياسة) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); display: none;
+            justify-content: center; align-items: center; z-index: 2000;
+            backdrop-filter: blur(2px);
+        }
+        
+        /* مودال التنبيهات العادي */
+        .modal-box {
+            background: white; padding: 25px; border-radius: 16px;
+            width: 85%; max-width: 320px; text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* مودال سياسة الخصوصية (مخصص ليقبل سكرول) */
+        .policy-box {
+            background: white; border-radius: 16px;
+            width: 90%; max-width: 400px; height: 80%; /* ارتفاع محدد */
+            display: flex; flex-direction: column;
+            overflow: hidden; /* لمنع الخروج عن الإطار */
+            animation: fadeIn 0.3s ease-out;
+        }
+        .policy-header {
+            padding: 20px; border-bottom: 1px solid #e5e7eb;
+            font-weight: bold; font-size: 18px; color: #1f2937;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .policy-content {
+            padding: 20px; overflow-y: auto; /* يسمح بالسكرول للنص فقط */
+            text-align: right; font-size: 14px; line-height: 1.6; color: #4b5563;
+            flex: 1;
+        }
+        .policy-footer {
+            padding: 15px; border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .modal-icon { font-size: 40px; margin-bottom: 10px; }
+        .modal-title { font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 8px; }
+        .modal-text { color: #6b7280; margin-bottom: 20px; font-size: 14px; }
+        .modal-btn { background-color: #3b82f6; color: white; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div class="register-card">
+        <h2>إنشاء حساب جديد</h2>
+        
+        <div class="input-group">
+            <label>الاسم الكامل</label>
+            <input type="text" id="fullName" placeholder="مثال: صالح محمد" required>
+        </div>
+        <div class="input-group">
+            <label>رقم الجوال</label>
+            <input type="tel" id="phone" placeholder="05xxxxxxxx" required>
+        </div>
+        <div class="input-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="email" placeholder="example@mail.com" required>
+        </div>
+        <div class="input-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="password" placeholder="********" required>
+        </div>
+
+        <div class="terms-container">
+            <input type="checkbox" id="termsCheckbox">
+            <label for="termsCheckbox">أوافق على <span id="openPrivacyBtn" class="terms-link">سياسة الخصوصية وشروط الاستخدام</span></label>
+        </div>
+
+        <button id="registerBtn">تسجيل حساب</button>
+        
+        <div class="login-link-container">
+            لديك حساب بالفعل؟ <a href="login.html">سجل دخولك هنا</a>
+        </div>
+    </div>
+
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modalIcon" class="modal-icon">🎉</div>
+            <h3 id="modalTitle" class="modal-title">عنوان</h3>
+            <p id="modalMessage" class="modal-text">نص</p>
+            <button id="modalBtn" class="modal-btn">فهمت</button>
+        </div>
+    </div>
+
+    <div id="privacyModal" class="modal-overlay">
+        <div class="policy-box">
+            <div class="policy-header">
+                <span>📄 سياسة الخصوصية</span>
+                <span id="closePrivacyX" style="cursor:pointer; font-size: 20px;">&times;</span>
+            </div>
+            <div class="policy-content">
+                <p><strong>1. مقدمة</strong><br>نرحب بكم في تطبيقنا. تنطبق هذه الشروط على استخدامك لموقعنا وخدماتنا.</p>
+                <br>
+                <p><strong>2. جمع البيانات</strong><br>نقوم بجمع البيانات التي تقدمها لنا عند التسجيل مثل الاسم ورقم الجوال والبريد الإلكتروني لغرض تحسين الخدمة والتواصل معك.</p>
+                <br>
+                <p><strong>3. الأمان</strong><br>نحن نلتزم بحماية بياناتك الشخصية ونستخدم تقنيات أمان متقدمة لمنع الوصول غير المصرح به.</p>
+                <br>
+                <p><strong>4. مسؤولية المستخدم</strong><br>أنت مسؤول عن الحفاظ على سرية بيانات حسابك وكلمة المرور الخاصة بك.</p>
+                <br>
+                <p><strong>5. التعديلات</strong><br>نحتفظ بالحق في تعديل هذه السياسة في أي وقت، وسيتم إشعاركم بأي تغييرات جوهرية.</p>
+                <br>
+                <p>نرجو قراءة هذه البنود بعناية قبل الموافقة.</p>
+            </div>
+            <div class="policy-footer">
+                <button id="closePrivacyBtn" class="modal-btn" style="background: #4b5563;">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 🔴🔴 بيانات مشروعك 🔴🔴
+         const firebaseConfig = {
+           apiKey: "AIzaSyDuzHaoq7AgzahbqB0Ud5YWL3B3y__wJi4",
+           authDomain: "my-dashboard-d7e5f.firebaseapp.com",
+           projectId: "my-dashboard-d7e5f",
+           storageBucket: "my-dashboard-d7e5f.firebasestorage.app",
+           messagingSenderId: "33578225090",
+           appId: "1:33578225090:web:b6b339bd56dfde1a9f5a5b"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- التعامل مع مودال التنبيهات ---
+        const modal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalBtn = document.getElementById('modalBtn');
+        let redirectUrl = null;
+
+        function showModal(title, message, icon, url = null) {
+            modalTitle.innerText = title;
+            modalMessage.innerText = message;
+            modalIcon.innerText = icon;
+            redirectUrl = url;
+            modal.style.display = "flex";
+        }
+        modalBtn.addEventListener('click', () => {
+            modal.style.display = "none";
+            if (redirectUrl) window.location.href = redirectUrl;
+        });
+
+        // --- التعامل مع مودال سياسة الخصوصية ---
+        const privacyModal = document.getElementById('privacyModal');
+        const openPrivacyBtn = document.getElementById('openPrivacyBtn');
+        const closePrivacyBtn = document.getElementById('closePrivacyBtn');
+        const closePrivacyX = document.getElementById('closePrivacyX');
+
+        // فتح السياسة
+        openPrivacyBtn.addEventListener('click', () => {
+            privacyModal.style.display = "flex";
+        });
+
+        // إغلاق السياسة
+        const closePrivacy = () => privacyModal.style.display = "none";
+        closePrivacyBtn.addEventListener('click', closePrivacy);
+        closePrivacyX.addEventListener('click', closePrivacy);
+
+
+        // --- زر التسجيل ---
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const termsCheckbox = document.getElementById('termsCheckbox'); // عنصر الشيك بوكس
+            const btn = document.getElementById('registerBtn');
+
+            // ✅ التحقق من الموافقة على الشروط
+            if (!termsCheckbox.checked) {
+                showModal("تنبيه", "يجب الموافقة على سياسة الخصوصية لإتمام التسجيل.", "⚠️");
+                return;
+            }
+
+            if(!fullName || !phone || !email || !password) {
+                showModal("تنبيه", "يرجى تعبئة جميع الحقول.", "ℹ️");
+                return;
+            }
+
+            btn.innerText = "جاري التحقق...";
+            btn.disabled = true;
+
+            try {
+                // التحقق من تكرار الجوال
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("phone", "==", phone));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) throw new Error("phone-exists");
+
+                // إنشاء الحساب
+                btn.innerText = "جاري إنشاء الحساب...";
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // حفظ البيانات
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: fullName, 
+                    phone: phone, 
+                    email: email, 
+                    createdAt: new Date(),
+                    termsAccepted: true // حفظ أن المستخدم وافق
+                });
+
+                showModal("تم التسجيل", `أهلاً بك ${fullName}، تم إنشاء حسابك بنجاح!`, "🎉", "index.html");
+
+            } catch (error) {
+                btn.innerText = "تسجيل حساب";
+                btn.disabled = false;
+                
+                let message = "حدث خطأ غير متوقع.";
+                if (error.message == "phone-exists") message = "رقم الجوال مسجل مسبقاً.";
+                else if(error.code == 'auth/email-already-in-use') message = "البريد الإلكتروني مستخدم بالفعل.";
+                else if (error.code == 'auth/weak-password') message = "كلمة المرور ضعيفة.";
+                else if (error.code == 'auth/invalid-email') message = "صيغة البريد الإلكتروني غير صحيحة.";
+                
+                showModal("خطأ", message, "⚠️");
+            }
+        });
+    </script>
+</body>
+</html>

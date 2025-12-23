@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تسجيل الدخول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* إعدادات عامة */
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            /* الخلفية */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('bg.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* استخدام min-height بدلاً من height للتعامل مع الكيبورد */
+            min-height: 100vh;
+            min-height: 100dvh; /* ميزة حديثة للجوالات */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px; /* مسافة أمان حول البطاقة */
+        }
+        
+        /* البطاقة (Mobile Optimized) */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95); /* زيادة التعتيم قليلاً للقراءة */
+            backdrop-filter: blur(8px);
+            padding: 30px 20px; /* تقليل الحواف الجانبية */
+            width: 100%; 
+            max-width: 380px; /* عرض مناسب للآيفون */
+            border-radius: 16px; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .login-card h2 { 
+            color: #1f2937; 
+            margin-top: 0;
+            margin-bottom: 25px; 
+            font-size: 22px; /* تصغير الخط قليلاً ليتناسب مع الجوال */
+            font-weight: 800;
+        }
+
+        .input-group { margin-bottom: 15px; text-align: right; }
+        
+        .input-group label { 
+            display: block; 
+            margin-bottom: 6px; 
+            color: #374151; 
+            font-size: 13px; 
+            font-weight: 700; 
+        }
+
+        /* تنسيق الحقول للجوال */
+        input { 
+            width: 100%; 
+            padding: 14px; /* مساحة لمس مريحة */
+            border: 1px solid #d1d5db; 
+            border-radius: 10px; 
+            outline: none; 
+            transition: 0.3s; 
+            /* هام جداً: 16px يمنع الآيفون من عمل زووم عند الكتابة */
+            font-size: 16px; 
+            background: #f9fafb;
+        }
+        
+        input:focus { 
+            border-color: #3b82f6; 
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); 
+        }
+
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background-color: #3b82f6; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            margin-top: 15px; 
+            /* تحسين للمس */
+            active: scale(0.98);
+        }
+        
+        button:active { transform: scale(0.98); background-color: #1d4ed8; }
+
+        .forgot-pass { 
+            display: inline-block; 
+            padding: 5px 0;
+            font-size: 13px; 
+            color: #6b7280; 
+            margin-top: 8px; 
+            cursor: pointer; 
+        }
+
+        .footer-links { margin-top: 25px; font-size: 14px; color: #4b5563; }
+        .footer-links a { color: #3b82f6; text-decoration: none; font-weight: bold; padding: 5px; }
+
+        /* ستايل المودال (متجاوب) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); display: none;
+            justify-content: center; align-items: center; z-index: 2000;
+            backdrop-filter: blur(2px);
+        }
+        .modal-box {
+            background: white; padding: 25px; border-radius: 16px;
+            width: 85%; max-width: 320px; text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.2s ease-out;
+        }
+        .modal-icon { font-size: 40px; margin-bottom: 10px; }
+        .modal-title { font-size: 18px; margin-bottom: 8px; }
+        .modal-text { font-size: 14px; margin-bottom: 20px; color: #6b7280; }
+        .modal-btn { padding: 12px; font-size: 14px; border-radius: 10px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>تسجيل الدخول</h2>
+        <div class="input-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="email" placeholder="example@mail.com" required>
+        </div>
+        <div class="input-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="password" placeholder="********" required>
+            <a id="forgotPasswordBtn" class="forgot-pass">هل نسيت كلمة المرور؟</a>
+        </div>
+        <button id="loginBtn">دخول</button>
+        <div class="footer-links">ليس لديك حساب؟ <a href="register.html">سجل الآن</a></div>
+    </div>
+
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modalIcon" class="modal-icon">✅</div>
+            <h3 id="modalTitle" class="modal-title">عنوان</h3>
+            <p id="modalMessage" class="modal-text">نص</p>
+            <button id="modalBtn" class="modal-btn">فهمت</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // إعدادات Firebase
+        const firebaseConfig = {
+           apiKey: "AIzaSyDuzHaoq7AgzahbqB0Ud5YWL3B3y__wJi4",
+           authDomain: "my-dashboard-d7e5f.firebaseapp.com",
+           projectId: "my-dashboard-d7e5f",
+           storageBucket: "my-dashboard-d7e5f.firebasestorage.app",
+           messagingSenderId: "33578225090",
+           appId: "1:33578225090:web:b6b339bd56dfde1a9f5a5b"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // التعامل مع المودال
+        const modal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalBtn = document.getElementById('modalBtn');
+        let redirectUrl = null;
+
+        function showModal(title, message, icon, url = null) {
+            modalTitle.innerText = title;
+            modalMessage.innerText = message;
+            modalIcon.innerText = icon;
+            redirectUrl = url;
+            modal.style.display = "flex";
+        }
+
+        modalBtn.addEventListener('click', () => {
+            modal.style.display = "none";
+            if (redirectUrl) window.location.href = redirectUrl;
+        });
+
+        // زر الدخول
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // تحقق بسيط قبل الإرسال
+            if(!email || !password) {
+                showModal("تنبيه", "يرجى تعبئة جميع الحقول", "⚠️");
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    showModal("تم الدخول", "جارٍ توجيهك للوحة التحكم...", "🚀", "index.html");
+                })
+                .catch((error) => {
+                    console.error(error);
+                    let msg = "تأكد من البريد وكلمة المرور.";
+                    if(error.code === 'auth/invalid-credential') msg = "بيانات الدخول غير صحيحة.";
+                    showModal("خطأ", msg, "❌");
+                });
+        });
+
+        // استعادة كلمة المرور
+        document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showModal("تنبيه", "اكتب بريدك الإلكتروني في الحقل أعلاه أولاً.", "📧");
+                return;
+            }
+            sendPasswordResetEmail(auth, email)
+                .then(() => showModal("تم الإرسال", "راجع بريدك الإلكتروني لتعيين كلمة المرور.", "✅"))
+                .catch((e) => showModal("خطأ", "تأكد من صحة البريد المدخل.", "❌"));
+        });
+    </script>
+</body>
+</html>

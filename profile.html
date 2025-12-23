@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الملف الشخصي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- إعدادات أساسية (نفس هوية المشروع) --- */
+        :root { --primary: #3b82f6; --bg: #f3f4f6; --text: #1f2937; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg);
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            padding-bottom: 30px;
+        }
+
+        /* --- الهيدر العلوي --- */
+        .profile-nav {
+            background: white; padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100;
+        }
+        .back-btn { text-decoration: none; font-size: 20px; color: var(--text); font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .page-title { font-weight: 800; font-size: 18px; color: var(--primary); }
+
+        /* --- حاوية المحتوى --- */
+        .container {
+            padding: 20px; width: 100%; max-width: 500px; margin: 0 auto;
+        }
+
+        /* --- قسم الصورة الشخصية --- */
+        .avatar-section {
+            display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; margin-top: 10px;
+        }
+        .avatar-wrapper {
+            position: relative; width: 100px; height: 100px;
+        }
+        .avatar-img {
+            width: 100%; height: 100%; border-radius: 50%;
+            border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            object-fit: cover; background: #ddd;
+        }
+        .edit-icon {
+            position: absolute; bottom: 0; left: 0;
+            background: var(--primary); color: white;
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; border: 2px solid white; cursor: pointer;
+        }
+        .user-role {
+            margin-top: 10px; background: #dbeafe; color: #1e40af;
+            padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;
+        }
+
+        /* --- البطاقات والحقول --- */
+        .card {
+            background: white; border-radius: 16px; padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px;
+        }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 6px; color: #6b7280; font-size: 13px; font-weight: 600; }
+        
+        input {
+            width: 100%; padding: 12px; border: 1px solid #e5e7eb;
+            border-radius: 10px; outline: none; transition: 0.3s;
+            font-size: 16px; /* لمنع الزووم في الآيفون */
+            background: #f9fafb; color: var(--text); font-weight: 600;
+        }
+        input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        input:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; border: 1px dashed #e5e7eb; }
+
+        /* --- الأزرار --- */
+        .btn-save {
+            width: 100%; padding: 14px; background: var(--primary);
+            color: white; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: 0.2s;
+        }
+        .btn-save:hover { background: #2563eb; }
+        .btn-save:active { transform: scale(0.98); }
+
+        .btn-pass {
+            width: 100%; padding: 12px; background: white;
+            color: #ef4444; border: 1px solid #fee2e2; border-radius: 12px;
+            font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px;
+        }
+        .btn-pass:active { background: #fef2f2; }
+
+        /* --- المودال --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none;
+            justify-content: center; align-items: center; z-index: 2000;
+        }
+        .modal-box {
+            background: white; padding: 25px; border-radius: 12px;
+            width: 85%; max-width: 320px; text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-out;
+        }
+        .modal-btn { background-color: var(--primary); color: white; padding: 10px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+
+    <nav class="profile-nav">
+        <a href="index.html" class="back-btn">
+            <span>&#8594;</span> عودة
+        </a>
+        <span class="page-title">بياناتي</span>
+        <div style="width: 50px;"></div> </nav>
+
+    <div class="container">
+        
+        <div class="avatar-section">
+            <div class="avatar-wrapper">
+                <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="avatar-img" id="profilePic">
+                <div class="edit-icon">📷</div>
+            </div>
+            <span class="user-role">عميل مميز</span>
+        </div>
+
+        <div class="card">
+            <div class="section-title">👤 المعلومات الشخصية</div>
+            
+            <div class="input-group">
+                <label>الاسم الكامل</label>
+                <input type="text" id="fullName" placeholder="جاري التحميل...">
+            </div>
+
+            <div class="input-group">
+                <label>رقم الجوال</label>
+                <input type="tel" id="phone" placeholder="05xxxxxxxx">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">🔒 بيانات الحساب</div>
+            
+            <div class="input-group">
+                <label>البريد الإلكتروني (لا يمكن تغييره)</label>
+                <input type="email" id="email" disabled>
+            </div>
+
+            <div class="input-group">
+                <label>تاريخ الانضمام</label>
+                <input type="text" id="joinDate" disabled>
+            </div>
+
+            <button class="btn-pass" id="resetPassBtn">🔒 تغيير كلمة المرور</button>
+        </div>
+
+        <button class="btn-save" id="saveBtn">حفظ التغييرات</button>
+
+    </div>
+
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modalIcon" style="font-size: 40px; margin-bottom: 10px;">✅</div>
+            <h3 id="modalTitle" style="font-size: 18px; margin-bottom: 5px;">عنوان</h3>
+            <p id="modalMessage" style="color:#6b7280; font-size: 14px;">نص</p>
+            <button id="modalBtn" class="modal-btn">تمام</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 🔴🔴 إعدادات Firebase 🔴🔴
+        const firebaseConfig = {
+           apiKey: "AIzaSyDuzHaoq7AgzahbqB0Ud5YWL3B3y__wJi4",
+           authDomain: "my-dashboard-d7e5f.firebaseapp.com",
+           projectId: "my-dashboard-d7e5f",
+           storageBucket: "my-dashboard-d7e5f.firebasestorage.app",
+           messagingSenderId: "33578225090",
+           appId: "1:33578225090:web:b6b339bd56dfde1a9f5a5b"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // العناصر
+        const fullNameInput = document.getElementById('fullName');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+        const joinDateInput = document.getElementById('joinDate');
+        const saveBtn = document.getElementById('saveBtn');
+
+        // المودال
+        const modal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalBtn = document.getElementById('modalBtn');
+        const modalIcon = document.getElementById('modalIcon');
+
+        function showModal(title, message, icon) {
+            modalTitle.innerText = title;
+            modalMessage.innerText = message;
+            modalIcon.innerText = icon;
+            modal.style.display = "flex";
+        }
+        modalBtn.addEventListener('click', () => modal.style.display = "none");
+
+        // جلب البيانات
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const docRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    fullNameInput.value = data.fullName || "";
+                    phoneInput.value = data.phone || "";
+                    emailInput.value = data.email || user.email;
+                    
+                    // تنسيق التاريخ
+                    if(data.createdAt && data.createdAt.seconds) {
+                        const date = new Date(data.createdAt.seconds * 1000);
+                        joinDateInput.value = date.toLocaleDateString('ar-SA');
+                    } else {
+                        joinDateInput.value = "غير مسجل";
+                    }
+                }
+            } else {
+                window.location.href = "login.html"; // طرد المستخدم إذا لم يكن مسجلاً
+            }
+        });
+
+        // حفظ التغييرات
+        saveBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if(!user) return;
+
+            const newName = fullNameInput.value.trim();
+            const newPhone = phoneInput.value.trim();
+
+            if(!newName || !newPhone) {
+                showModal("خطأ", "لا يمكن ترك الحقول فارغة", "⚠️");
+                return;
+            }
+
+            saveBtn.innerText = "جاري الحفظ...";
+            saveBtn.disabled = true;
+
+            try {
+                const docRef = doc(db, "users", user.uid);
+                await updateDoc(docRef, {
+                    fullName: newName,
+                    phone: newPhone
+                });
+                showModal("تم الحفظ", "تم تحديث بياناتك بنجاح!", "✅");
+            } catch (error) {
+                console.error(error);
+                showModal("خطأ", "حدثت مشكلة أثناء الحفظ", "❌");
+            } finally {
+                saveBtn.innerText = "حفظ التغييرات";
+                saveBtn.disabled = false;
+            }
+        });
+
+        // تغيير كلمة المرور
+        document.getElementById('resetPassBtn').addEventListener('click', () => {
+            const user = auth.currentUser;
+            if(user && user.email) {
+                sendPasswordResetEmail(auth, user.email)
+                    .then(() => showModal("تم الإرسال", "تم إرسال رابط تغيير كلمة المرور لبريدك.", "📩"))
+                    .catch((e) => showModal("خطأ", "حدث خطأ غير متوقع.", "❌"));
+            }
+        });
+
+    </script>
+</body>
+</html>
