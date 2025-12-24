@@ -211,7 +211,7 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
   </div>
 </div>
 
-<script>
+	<script>
     document.addEventListener("DOMContentLoaded", function() {
         const citySelect = document.getElementById('city_select');
 
@@ -225,23 +225,26 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 
                 // 1. استخراج القائمة (سواء كانت مباشرة أو داخل data)
                 let citiesList = [];
+                // نتأكد هل البيانات داخل مفتاح "data" أو مصفوفة مباشرة
                 if (jsonResponse.data && Array.isArray(jsonResponse.data)) {
                     citiesList = jsonResponse.data;
                 } else if (Array.isArray(jsonResponse)) {
                     citiesList = jsonResponse;
                 }
 
-                // 2. تعبئة القائمة بالأسماء الصحيحة
+                // 2. تعبئة القائمة بالاسم العربي فقط
                 citiesList.forEach(cityItem => {
                     let option = document.createElement('option');
                     
-                    // 🔴 هنا التعديل: استخدمنا الاسم الموجود في ملفك بالضبط
-                    let displayName = cityItem.name_ar || cityItem.name_en || "اسم غير معروف";
+                    // ✅ هنا التعديل: نأخذ "city_name_ar" فقط كما طلبت
+                    let displayName = cityItem.city_name_ar;
                     
-                    option.value = displayName; 
-                    option.textContent = displayName; 
-                    
-                    citySelect.appendChild(option);
+                    // احتياط: لو كان الاسم العربي فارغ، لا نعرض خياراً فارغاً (اختياري)
+                    if (displayName) {
+                        option.value = displayName; 
+                        option.textContent = displayName; 
+                        citySelect.appendChild(option);
+                    }
                 });
 
                 // تفعيل Select2
@@ -424,5 +427,6 @@ loadCities();
 </body>
 
 </html>
+
 
 
