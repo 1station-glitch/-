@@ -211,13 +211,13 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
   </div>
 </div>
 
-	<script>
+<script>
     document.addEventListener("DOMContentLoaded", function() {
         const citySelect = document.getElementById('city_select');
 
         fetch('./cities.json') 
             .then(response => {
-                if (!response.ok) throw new Error("ملف المدن غير موجود");
+                if (!response.ok) throw new Error("ملف المدن غير موجود أو الرابط خطأ");
                 return response.json();
             })
             .then(jsonResponse => {
@@ -225,22 +225,23 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 
                 // 1. استخراج القائمة (سواء كانت مباشرة أو داخل data)
                 let citiesList = [];
-                // نتأكد هل البيانات داخل مفتاح "data" أو مصفوفة مباشرة
                 if (jsonResponse.data && Array.isArray(jsonResponse.data)) {
                     citiesList = jsonResponse.data;
                 } else if (Array.isArray(jsonResponse)) {
                     citiesList = jsonResponse;
+                } else {
+                    console.error("تنسيق الملف غير معروف:", jsonResponse);
                 }
 
-                // 2. تعبئة القائمة بالاسم العربي فقط
+                // 2. تعبئة القائمة (كود الجوكر)
                 citiesList.forEach(cityItem => {
                     let option = document.createElement('option');
                     
-                    // ✅ هنا التعديل: نأخذ "city_name_ar" فقط كما طلبت
-                    let displayName = cityItem.city_name_ar;
+                    // 🔥 التعديل الذكي: يفحص كل الاحتمالات 🔥
+                    // يبحث عن city_name_ar، إذا لم يجده يبحث عن name_ar، وهكذا..
+                    let displayName = cityItem.city_name_ar || cityItem.name_ar || cityItem.city_name || cityItem.name_en || "اسم مجهول";
                     
-                    // احتياط: لو كان الاسم العربي فارغ، لا نعرض خياراً فارغاً (اختياري)
-                    if (displayName) {
+                    if (displayName && displayName !== "اسم مجهول") {
                         option.value = displayName; 
                         option.textContent = displayName; 
                         citySelect.appendChild(option);
@@ -254,7 +255,8 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
             })
             .catch(error => {
                 console.error('Error:', error);
-                citySelect.innerHTML = '<option value="">فشل التحميل</option>';
+                // هذا السطر بيطلع لك رسالة الخطأ داخل القائمة عشان تشوفها
+                citySelect.innerHTML = '<option value="">خطأ في البيانات (افتح الكونسول)</option>';
             });
     });
 </script>
@@ -427,6 +429,7 @@ loadCities();
 </body>
 
 </html>
+
 
 
 
