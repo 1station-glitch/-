@@ -3,21 +3,13 @@
     "city_id": 1,
     "region_id": 7,
     "name_ar": "تبوك",
-    "name_en": "Tabuk",
-    "center": [
-      28.41463997,
-      36.53387003
-    ]
+    "name_en": "Tabuk"
   },
   {
     "city_id": 2,
     "region_id": 7,
     "name_ar": "نعمي",
-    "name_en": "Na'mi",
-    "center": [
-      28.30507995,
-      35.74931003
-    ]
+    "name_en": "Na'mi"
   },
   {
     "city_id": 3,
