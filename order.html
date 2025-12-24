@@ -214,19 +214,12 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const citySelect = document.getElementById('city_select');
-
-        // 🔥 هنا التغيير: وضعنا الرابط الكامل للملف عشان ما يضيع
+        // الرابط الكامل للملف لضمان الوصول
         const fileUrl = "https://1station-glitch.github.io/-/cities.json";
-
-        console.log("جاري محاولة تحميل الملف من:", fileUrl);
 
         fetch(fileUrl + '?v=' + new Date().getTime()) 
             .then(response => {
-                if (!response.ok) {
-                    // إذا الملف غير موجود، نطلع تنبيه يوضح السبب
-                    alert("❌ خطأ: لم يتم العثور على ملف المدن!\nتأكد أن الملف cities.json موجود في GitHub بنفس الاسم تماماً.");
-                    throw new Error("HTTP error " + response.status);
-                }
+                if (!response.ok) throw new Error("الملف غير موجود");
                 return response.text();
             })
             .then(textData => {
@@ -234,21 +227,12 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 
                 let allLines = textData.split('\n');
 
-                // حذف السطر الأول والأخير (الأقواس) إذا كان الملف يحتوي عليها
-                if (allLines.length > 2) {
-                    // نتأكد هل السطر الأول فعلاً قوس؟ إذا نعم نحذفه، إذا لا نخليه
-                    if (allLines[0].trim().includes("[")) {
-                         allLines = allLines.slice(1);
-                    }
-                    if (allLines[allLines.length - 1].trim().includes("]")) {
-                         allLines = allLines.slice(0, -1);
-                    }
-                }
-
                 allLines.forEach(line => {
-                    // تنظيف السطر من علامات التنصيص والفواصل
-                    let cleanName = line.replace(/[",]/g, "").trim();
+                    // 🔥 هنا التعديل السحري:
+                    // نضيف \[ و \] داخل الاستبدال لكي يحذفها مع الفواصل وعلامات التنصيص
+                    let cleanName = line.replace(/[",\[\]]/g, "").trim();
 
+                    // الآن الشرط يقول: إذا الاسم ليس فارغاً، اعرضه
                     if (cleanName.length > 0) {
                         let option = document.createElement('option');
                         option.value = cleanName;
@@ -264,7 +248,7 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
             })
             .catch(error => {
                 console.error('Error:', error);
-                citySelect.innerHTML = '<option value="">حدث خطأ في التحميل</option>';
+                citySelect.innerHTML = '<option value="">فشل تحميل القائمة</option>';
             });
     });
 </script>
@@ -437,6 +421,7 @@ loadCities();
 </body>
 
 </html>
+
 
 
 
