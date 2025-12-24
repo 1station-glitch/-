@@ -213,45 +213,38 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const citySelect = document.getElementById('city_select'); // تأكد أن ID القائمة في HTML هو city_select
+        const citySelect = document.getElementById('city_select');
 
-        // جلب ملف المدن
-        fetch('cities.json') 
+        fetch('./cities.json') 
             .then(response => {
-                if (!response.ok) throw new Error("لم يتم العثور على ملف المدن");
+                if (!response.ok) throw new Error("ملف المدن غير موجود");
                 return response.json();
             })
             .then(jsonResponse => {
-                // تنظيف القائمة
                 citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
 
-                // 1. استخراج القائمة الصحيحة من البيانات
+                // 1. استخراج القائمة (سواء كانت مباشرة أو داخل data)
                 let citiesList = [];
-                // بعض ملفات JSON تكون القائمة داخل "data" وبعضها تكون قائمة مباشرة
                 if (jsonResponse.data && Array.isArray(jsonResponse.data)) {
                     citiesList = jsonResponse.data;
                 } else if (Array.isArray(jsonResponse)) {
                     citiesList = jsonResponse;
-                } else {
-                    console.error("شكل البيانات غير معروف", jsonResponse);
                 }
 
-                // 2. تعبئة القائمة بالأسماء
+                // 2. تعبئة القائمة بالأسماء الصحيحة
                 citiesList.forEach(cityItem => {
                     let option = document.createElement('option');
                     
-                    // 🔥 هنا التعديل المهم: نحدد الاسم العربي أو الإنجليزي 🔥
-                    // نحاول نجيب الاسم العربي، لو ما لقيناه نجيب الإنجليزي
-                    let displayName = cityItem.city_name_ar || cityItem.city_name || "اسم غير معروف";
+                    // 🔴 هنا التعديل: استخدمنا الاسم الموجود في ملفك بالضبط
+                    let displayName = cityItem.name_ar || cityItem.name_en || "اسم غير معروف";
                     
-                    // نحدد القيمة والنص الظاهر
                     option.value = displayName; 
                     option.textContent = displayName; 
                     
                     citySelect.appendChild(option);
                 });
 
-                // تفعيل Select2 (للبحث وشكل القائمة الجميل)
+                // تفعيل Select2
                 if (typeof $ !== 'undefined' && $.fn.select2) {
                     $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة..." });
                 }
@@ -431,4 +424,5 @@ loadCities();
 </body>
 
 </html>
+
 
