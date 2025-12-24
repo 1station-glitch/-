@@ -214,65 +214,50 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const citySelect = document.getElementById('city_select');
-        
-        // رسالة تأكد أن الكود بدأ العمل
-        console.log("🚀 بدأنا محاولة جلب المدن...");
 
-        fetch('./cities.json') 
+        // رابط الملف مع كود يمنع التخزين المؤقت (عشان يجيب الجديد غصب)
+        fetch('./cities.json?v=' + new Date().getTime()) 
             .then(response => {
-                if (!response.ok) {
-                    // 🛑 هنا المصيدة: لو الملف غير موجود، بيطلع لك تنبيه
-                    alert("❌ خطأ خطير: ملف cities.json غير موجود أو لا يمكن الوصول إليه!\nتأكد أنك رفعته بجانب ملف order.html");
-                    throw new Error("HTTP error " + response.status);
-                }
-                return response.text(); // نستخدم text أولاً عشان نفحص الملف لو فيه أخطاء كتابة
+                if (!response.ok) throw new Error("الملف غير موجود");
+                return response.text(); // نجيبه كنص خاااام
             })
-            .then(text => {
-                try {
-                    const jsonResponse = JSON.parse(text); // نحاول نحوله لـ JSON
-                    
-                    let citiesList = [];
-                    // فحص مكان البيانات
-                    if (jsonResponse.data && Array.isArray(jsonResponse.data)) citiesList = jsonResponse.data;
-                    else if (Array.isArray(jsonResponse)) citiesList = jsonResponse;
-                    
-                    // تنظيف القائمة
-                    citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
+            .then(textData => {
+                citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
 
-                    let count = 0;
-                    citiesList.forEach(cityItem => {
-                        let option = document.createElement('option');
-                        // البحث عن الاسم بكل الطرق الممكنة
-                        let name = cityItem.city_name_ar || cityItem.name_ar || cityItem.name_en || cityItem.city_name;
-                        
-                        if (name) {
-                            option.value = name;
-                            option.textContent = name;
+                // 1. نقسم النص لسطور
+                let allLines = textData.split('\n');
+
+                // 2. نحذف السطر الأول والأخير فقط
+                // (دالة slice(1, -1) تعني: ابدأ من السطر الثاني، وتوقف قبل السطر الأخير بواحد)
+                if (allLines.length > 2) {
+                    let cityLines = allLines.slice(1, -1);
+
+                    // 3. نلف على السطور اللي بقيت
+                    cityLines.forEach(line => {
+                        // تنظيف: نحذف علامات التنصيص " ونحذف الفاصلة , ونحذف المسافات الزايدة
+                        let cleanName = line.replace(/[",]/g, "").trim();
+
+                        // شرط بسيط: إذا السطر مو فاضي بعد التنظيف، اعرضه
+                        if (cleanName.length > 0) {
+                            let option = document.createElement('option');
+                            option.value = cleanName;
+                            option.textContent = cleanName;
                             citySelect.appendChild(option);
-                            count++;
                         }
                     });
-                    
-                    if (count === 0) {
-                        alert("⚠️ الملف موجود، لكن لم نجد أي أسماء مدن بداخله!\nتأكد من أسماء الخانات في ملف JSON.");
-                    } else {
-                        // لو اشتغل، خلنا ساكتين أو طلع رسالة نجاح للتجربة
-                        // alert("✅ تم تحميل " + count + " مدينة بنجاح!");
-                    }
 
                     // تفعيل Select2
                     if (typeof $ !== 'undefined' && $.fn.select2) {
                         $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة..." });
                     }
 
-                } catch (e) {
-                    // 🛑 هنا المصيدة الثانية: لو الملف مكتوب غلط
-                    alert("❌ الملف موجود لكنه 'مضروب' (Syntax Error)!\nأنت غالباً نسخت ولصقت 14 صفحة وراء بعض بدون ترتيب.\nالخطأ: " + e.message);
+                } else {
+                    console.error("الملف فاضي أو فيه سطرين بس");
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                citySelect.innerHTML = '<option value="">فشل التحميل</option>';
+                citySelect.innerHTML = '<option value="">فشل تحميل القائمة</option>';
             });
     });
 </script>
@@ -445,6 +430,7 @@ loadCities();
 </body>
 
 </html>
+
 
 
 
