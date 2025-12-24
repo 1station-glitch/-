@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لوحة التحكم - 1STATION</title>
+    <title>لوحة التحكم</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
     <style>
         /* --- إعدادات أساسية --- */
@@ -13,11 +12,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
         
-        /* --- القائمة الجانبية --- */
+        /* --- القائمة الجانبية (تم تصغير العرض إلى 220px) --- */
         .sidebar { 
             position: fixed; top: 0; 
-            right: -220px; 
-            width: 220px; 
+            right: -220px; /* نفس عرض القائمة بالسالب للإخفاء */
+            width: 220px;  /* العرض الجديد المصغر */
             height: 100%; 
             background-color: var(--sidebar); color: #fff; 
             padding: 10px; z-index: 1000; transition: 0.3s ease-in-out;
@@ -26,81 +25,121 @@
         }
         .sidebar.active { right: 0; }
 
-        .sidebar-user-area { text-align: center; padding: 25px 0 15px 0; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-avatar { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #3b82f6; margin-bottom: 10px; object-fit: cover; background-color: #fff; padding: 2px; }
-        #sidebarUserName { color: #fff; font-size: 15px; font-weight: 700; display: block; margin-bottom: 2px; }
-        .view-profile-text { color: #94a3b8; font-size: 11px; }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+        /* --- منطقة المستخدم (الأفاتار) في القائمة --- */
+        .sidebar-user-area {
+            text-align: center;
+            padding: 25px 0 15px 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .profile-link {
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; transition: 0.3s;
+        }
+        .profile-link:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        .sidebar-avatar {
+            width: 70px; height: 70px; /* حجم الأفاتار */
+            border-radius: 50%;
+            border: 3px solid #3b82f6;
+            margin-bottom: 10px;
+            object-fit: cover;
+            background-color: #fff; padding: 2px;
+        }
+
+        #sidebarUserName {
+            color: #fff; font-size: 15px; font-weight: 700;
+            display: block; margin-bottom: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+        }
+
+        .view-profile-text { color: #94a3b8; font-size: 11px; font-weight: normal; }
+        
+        /* خلفية تعتيم عند فتح القائمة */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999; display: none;
+        }
         .sidebar-overlay.active { display: block; }
 
-        /* --- روابط القائمة --- */
+        /* --- تصميم القوائم --- */
         .sidebar-menu { list-style: none; margin-top: 5px; }
         .sidebar-menu li { margin-bottom: 5px; }
-        .sidebar-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #cbd5e1; text-decoration: none; border-radius: 8px; transition: all 0.3s ease; font-size: 14px; font-weight: 600; cursor: pointer; }
-        .sidebar-menu a:hover, .sidebar-menu a.active { background-color: rgba(255, 255, 255, 0.1); color: #fff; }
-        .special-link { background: linear-gradient(45deg, #3b82f6, #2563eb); color: white !important; margin-top: 20px; }
+        .sidebar-menu a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; color: #cbd5e1; text-decoration: none;
+            border-radius: 8px; transition: all 0.3s ease;
+            font-size: 14px; font-weight: 600;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1); color: #fff;
+        }
+        
+        .special-link {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: white !important; margin-top: 20px;
+        }
 
         /* --- المحتوى الرئيسي --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; width: 100%; overflow-y: auto; transition: 0.3s; }
-        .top-header { background-color: #ffffff; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 500; }
+        .main-content { flex: 1; display: flex; flex-direction: column; width: 100%; overflow-y: auto; }
+
+        /* --- الهيدر --- */
+        .top-header {
+            background-color: #ffffff; height: 60px; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 500;
+        }
+
         .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #1e293b; padding: 5px; }
-        .btn-logout { background-color: #fee2e2; color: #ef4444; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
-        /* --- الأقسام (التبويبات) --- */
-        .content-section { display: none; padding: 20px 15px; width: 100%; animation: fadeIn 0.4s ease; }
-        .content-section.active-section { display: block; }
+        .auth-buttons { display: flex; gap: 8px; }
+        .btn { padding: 8px 14px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 13px; white-space: nowrap; }
+        .btn-login { border: 1px solid var(--primary); color: var(--primary); }
+        .btn-register { background: var(--primary); color: white; border: 1px solid var(--primary); }
 
-        /* --- ستايل الداشبورد (الإحصائيات) --- */
-        .dashboard-title { text-align: center; font-size: 1.6rem; font-weight: 800; margin-bottom: 25px; background: linear-gradient(45deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .user-profile { display: none; align-items: center; gap: 10px; }
+        .user-name { font-weight: 700; color: #1e293b; font-size: 14px; display: none; } /* إخفاء الاسم من الهيدر لتوفير مساحة */
+        .btn-logout { background-color: #fee2e2; color: #ef4444; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; white-space: nowrap; }
+
+        /* --- جسم الصفحة --- */
+        .page-body { padding: 20px 15px; width: 100%; }
+        .dashboard-title { 
+            text-align: center; font-size: 1.6rem; font-weight: 800; margin-bottom: 25px; 
+            background: linear-gradient(45deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        
         .stats-container { display: flex; flex-direction: column; gap: 15px; }
         .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-bottom: 4px solid #3b82f6; }
         .stat-value { font-size: 24px; font-weight: 800; color: #1f2937; margin-top: 5px; }
 
-        /* --- ستايل نموذج الشحن (مدمج) --- */
-        .form-container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 14px; }
-        
-        /* توحيد الخانات */
-        input, select, .select2-container .select2-selection--single { 
-            width: 100% !important; height: 50px !important; padding: 0 15px; border-radius: 12px !important; 
-            border: 1px solid #ccc !important; font-size: 14px !important; background-color: #fff !important; 
-            box-sizing: border-box; display: flex !important; align-items: center !important;
+        /* --- المودال --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none;
+            justify-content: center; align-items: center; z-index: 2000;
         }
-        
-        /* زر الإرسال */
-        .submit-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; background: linear-gradient(135deg, #6c63ff, #3f3d56); color: white; }
-        
-        /* Select2 Tweak */
-        .select2-container { width: 100% !important; }
-        .select2-container .select2-selection--single .select2-selection__arrow { height: 100% !important; top: 0 !important; left: 10px !important; }
-        .select2-container .select2-selection--single .select2-selection__rendered { padding-right: 0 !important; padding-left: 20px !important; color: #333 !important; }
-
-        /* رسائل ومودالات */
-        .note, .warning { width: 100%; padding: 10px; border-radius: 10px; font-size: 13px; display: none; text-align: center; margin-top: 10px; }
-        .note { background: #e0f7fa; border: 1px solid #00acc1; color: #006064; }
-        .warning { background: #ffebee; border: 1px solid #d32f2f; color: #b71c1c; }
-        
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
-        
-        /* صور الشركات */
-        .company-images { display:flex; justify-content:center; gap:15px; margin-top:15px; flex-wrap:wrap;}
-        .company-images img { width:80px; height:80px; border-radius:12px; border:2px solid #6c63ff; cursor:pointer; object-fit: contain; padding: 5px; background: #fff;}
-        .shipping-option { border: 2px solid #6c63ff; border-radius: 15px; padding: 15px; margin: 10px 0; cursor:pointer; display: flex; align-items: center; justify-content: center; gap: 10px;}
-        .shipping-option:hover, .shipping-option.selected { background: #6c63ff; color: white; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-box {
+            background: white; padding: 25px; border-radius: 12px;
+            width: 85%; max-width: 320px; text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-out;
+        }
+        .modal-icon { font-size: 35px; margin-bottom: 10px; }
+        .modal-btn { background-color: #3b82f6; color: white; padding: 12px; border-radius: 8px; border: none; width: 100%; font-size: 14px; margin-top: 15px; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         /* الشاشات الكبيرة */
         @media (min-width: 992px) {
             body { flex-direction: row; }
             .sidebar { position: static; width: 250px; transform: none; box-shadow: none; right: auto; }
             .sidebar-overlay, .menu-btn { display: none; }
-            .content-section { padding: 40px; }
+            .page-body { padding: 40px; }
             .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); }
             .dashboard-title { font-size: 3rem; }
+            .user-name { display: block; }
         }
+
     </style>
 </head>
 <body>
@@ -109,23 +148,24 @@
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-user-area">
-            <a href="#" onclick="showSection('settings-section')" class="profile-link">
+            <a href="profile.html" class="profile-link">
                 <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="sidebar-avatar" id="sidebarAvatar" alt="Profile">
                 <div class="sidebar-user-info">
-                    <span id="sidebarUserName">جاري التحميل...</span>
+                    <span id="sidebarUserName">زائر</span>
                     <span class="view-profile-text">عرض الملف الشخصي</span>
                 </div>
             </a>
         </div>
         
         <ul class="sidebar-menu">
-            <li><a href="#" onclick="showSection('dashboard-section')" id="link-dashboard" class="active">🏠 لوحة التحكم</a></li>
-            <li><a href="#" onclick="showSection('order-section')" id="link-order">📄 اصدار بوليصة</a></li>
-            <li><a href="#" onclick="showSection('companies-section')" id="link-companies">🚚 شركات الشحن</a></li>
-            <li><a href="#" onclick="showSection('myorders-section')" id="link-myorders">📦 طلباتي</a></li>
-            <li><a href="#" onclick="showSection('wallet-section')" id="link-wallet">💳 المحفظة</a></li>
-            <li><a href="#" onclick="showSection('settings-section')" id="link-settings">⚙️ الإعدادات</a></li>
-            <li><a href="store_register.html" class="special-link">🏪 سجل كمتجر</a></li>
+            <li><a href="index.html" class="active">🏠 لوحة التحكم</a></li>
+            <li><a href="order.html">📄 اصدار بوليصة</a></li>
+            <li><a href="#">🚚 شركات الشحن</a></li>
+            <li><a href="#">📦 طلباتي</a></li>
+            <li><a href="#">💳 المحفظة</a></li>
+            <li><a href="#">⚙️ الإعدادات</a></li>
+            
+            <li><a href="#" class="special-link">🏪 سجل كمتجر</a></li>
         </ul>
     </aside>
 
@@ -133,13 +173,23 @@
         
         <header class="top-header">
             <button class="menu-btn" id="menuBtn">☰</button>
+
             <div class="header-actions">
-                <button class="btn-logout" id="logoutBtn">خروج</button>
+                <div class="auth-buttons" id="guestSection">
+                    <a href="login.html" class="btn btn-login">دخول</a>
+                    <a href="register.html" class="btn btn-register">تسجيل</a>
+                </div>
+
+                <div class="user-profile" id="userSection">
+                    <div class="user-name" id="headerDisplayName">...</div>
+                    <button class="btn-logout" id="logoutBtn">خروج</button>
+                </div>
             </div>
         </header>
 
-        <div id="dashboard-section" class="content-section active-section">
-            <h1 class="dashboard-title">لوحة التحكم</h1>
+        <div class="page-body">
+            <h1 class="index-title">لوحة التحكم</h1>
+            
             <div class="stats-container">
                 <div class="stat-card">
                     <div class="stat-title">رقم الجوال</div>
@@ -155,342 +205,117 @@
                 </div>
             </div>
         </div>
-
-        <div id="order-section" class="content-section">
-            <h2 class="dashboard-title">إصدار بوليصة شحن</h2>
-            
-            <div class="form-container">
-                <form id="shippingForm" action="https://formspree.io/f/mlgrgjgp" method="POST" target="_blank">
-                    
-                    <h3>اسم المتجر</h3>
-                    <div class="form-group">
-                        <label>الاسم</label>
-                        <input type="text" name="store_name" required placeholder="اكتب اسم المتجر المسجل">
-                    </div>
-
-                    <h3>بيانات العميل</h3>
-                    <div class="form-group">
-                        <label>الاسم</label>
-                        <input type="text" name="receiver_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>رقم الهاتف</label>
-                        <input type="tel" name="receiver_phone" pattern="[0-9]*" inputmode="numeric" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>المدينة</label>
-                        <select id="city_select" name="city" required style="width: 100%;">
-                            <option value="">جاري تحميل المدن...</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>الحي</label>
-                        <input type="text" name="receiver_district" required>
-                    </div>
-                    <div class="form-group">
-                        <label>الشارع</label>
-                        <input type="text" name="receiver_street" required>
-                    </div>
-
-                    <h3>تفاصيل الشحنة</h3>
-                    <div class="form-group">
-                        <label>وزن الشحنة (كجم)</label>
-                        <input type="number" id="weight" name="weight" min="1" step="0.1" required>
-                    </div>
-                    <div class="form-group">
-                        <label>قيمة المنتجات (ريال)</label>
-                        <input type="number" name="value" required>
-                    </div>
-                    <div class="form-group">
-                        <label>شركة الشحن</label>
-                        <input type="text" id="shippingCompany" name="company" required readonly placeholder="اضغط للاختيار" style="cursor: pointer; background-color: #f9fafb;">
-                    </div>
-
-                    <div id="priceNote" class="note" style="font-weight: bold; font-size: 16px; color: #2e7d32; border-color: #2e7d32; background: #e8f5e9;"></div>
-                    <div id="weightWarning" class="warning">🚨 الوزن غير مسموح لشركة ريد بوكس!</div>
-                    <div id="redboxNote" class="note">ℹ️ العميل يستلم الشحنة من أقرب خزانة (RedBox)</div>
-                    <div id="brolloNote" class="note">
-                        📦 الحد الأقصى لطلب الاستلام: 3 شحنات<br>
-                        <span style="color:#0066cc; cursor:pointer; text-decoration:underline;" onclick="showBranches()">📍 عرض فروع التسليم</span>
-                    </div>
-
-                    <button type="submit" class="submit-btn">إرسال الطلب ✅</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="companies-section" class="content-section"><h2 class="dashboard-title">شركات الشحن</h2><p style="text-align:center;">قريباً...</p></div>
-        <div id="myorders-section" class="content-section"><h2 class="dashboard-title">طلباتي</h2><p style="text-align:center;">قريباً...</p></div>
-        <div id="wallet-section" class="content-section"><h2 class="dashboard-title">المحفظة</h2><p style="text-align:center;">قريباً...</p></div>
-        <div id="settings-section" class="content-section"><h2 class="dashboard-title">الإعدادات</h2><p style="text-align:center;">قريباً...</p></div>
-
     </main>
 
-    <div id="shippingTypeModal" class="modal-overlay">
+    <div id="customModal" class="modal-overlay">
         <div class="modal-box">
-            <h3>اختر طريقة الشحن</h3>
-            <div class="shipping-option" onclick="showCompanyOptions('dry')">
-                <span>📦</span> <span>شحن جاف (عادي)</span>
-            </div>
-            <div class="shipping-option" onclick="showCompanyOptions('cold')">
-                <span>❄️</span> <span>شحن مبرد</span>
-            </div>
-            <div class="shipping-option" onclick="showCompanyOptions('pickup')">
-                <span>🏪</span> <span>خزانات ذكية</span>
-            </div>
-            
-            <div id="companyOptions" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                <p style="font-size:12px; color:#666;">اختر الشركة:</p>
-                <div class="company-images" id="companyButtons"></div>
-            </div>
-            <button onclick="document.getElementById('shippingTypeModal').style.display='none'" style="margin-top:15px; background:none; border:none; color:red; cursor:pointer;">إلغاء</button>
+            <div id="modalIcon" class="modal-icon">✅</div>
+            <h3 id="modalTitle" class="modal-title">عنوان</h3>
+            <p id="modalMessage" class="modal-text">نص</p>
+            <button id="modalBtn" class="modal-btn">فهمت</button>
         </div>
     </div>
 
-    <div id="aramexWarningModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="color:#d32f2f;">⚠️ تنبيه هام – أرامكس</h3>
-            <p style="text-align:right; font-size:14px; line-height:1.6;">
-                يرجى تغليف الشحنة جيدًا وطباعة البوليصة.<br>
-                أوقات العمل: الأحد - الخميس 8:30ص - 4:30م.
-            </p>
-            <button onclick="confirmAramexWarning()" style="width:100%; padding:10px; background:#d32f2f; color:white; border:none; border-radius:8px; margin-top:10px;">فهمت – متابعة</button>
-        </div>
-    </div>
-
-    <div id="branchesModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>فروع برولو</h3>
-            <ul style="list-style:none; padding:0; text-align:right;">
-                <li>📍 الرياض</li><li>📍 جدة</li><li>📍 الدمام</li>
-            </ul>
-            <button onclick="document.getElementById('branchesModal').style.display='none'" style="margin-top:10px; width:100%; padding:10px; border:none; background:#eee; border-radius:8px;">إغلاق</button>
-        </div>
-    </div>
-
-    <div id="thankYouModal" class="modal-overlay">
-        <div class="modal-box">
-            <div style="font-size:50px;">🎉</div>
-            <p>تم إرسال طلبك بنجاح!<br>سنتواصل معك قريباً.</p>
-            <button onclick="document.getElementById('thankYouModal').style.display='none'" style="width:100%; padding:10px; background:#3b82f6; color:white; border:none; border-radius:8px; margin-top:10px;">إغلاق</button>
-        </div>
-    </div>
-
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    
     <script type="module">
-        // Firebase Setup
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // 🔴🔴 إعدادات Firebase 🔴🔴
         const firebaseConfig = {
-            apiKey: "AIzaSyDuzHaoq7AgzahbqB0Ud5YWL3B3y__wJi4",
-            authDomain: "my-dashboard-d7e5f.firebaseapp.com",
-            projectId: "my-dashboard-d7e5f",
-            storageBucket: "my-dashboard-d7e5f.firebasestorage.app",
-            messagingSenderId: "33578225090",
-            appId: "1:33578225090:web:b6b339bd56dfde1a9f5a5b"
+           apiKey: "AIzaSyDuzHaoq7AgzahbqB0Ud5YWL3B3y__wJi4",
+           authDomain: "my-dashboard-d7e5f.firebaseapp.com",
+           projectId: "my-dashboard-d7e5f",
+           storageBucket: "my-dashboard-d7e5f.firebasestorage.app",
+           messagingSenderId: "33578225090",
+           appId: "1:33578225090:web:b6b339bd56dfde1a9f5a5b"
         };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // التحقق من المستخدم
+        // --- التحكم في القائمة الجانبية ---
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // --- المودال ---
+        const modal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalBtn = document.getElementById('modalBtn');
+        let redirectUrl = null;
+
+        function showModal(title, message, icon, url = null) {
+            modalTitle.innerText = title;
+            modalMessage.innerText = message;
+            modalIcon.innerText = icon;
+            redirectUrl = url;
+            modal.style.display = "flex";
+        }
+
+        modalBtn.addEventListener('click', () => {
+            modal.style.display = "none";
+            if (redirectUrl) window.location.href = redirectUrl;
+        });
+
+        // --- حالة المستخدم ---
         onAuthStateChanged(auth, async (user) => {
-            const sidebarUserName = document.getElementById('sidebarUserName');
+            const guestSection = document.getElementById('guestSection');
+            const userSection = document.getElementById('userSection');
+            const headerDisplayName = document.getElementById('headerDisplayName');
             const userPhoneDisplay = document.getElementById('userPhoneDisplay');
+            const sidebarUserName = document.getElementById('sidebarUserName'); // الاسم في القائمة الجانبية
 
             if (user) {
+                guestSection.style.display = 'none';
+                userSection.style.display = 'flex';
+
                 const docRef = doc(db, "users", user.uid);
                 try {
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const data = docSnap.data();
-                        if(sidebarUserName) sidebarUserName.innerText = data.fullName;
+                        const fullName = data.fullName;
+
+                        // تحديث الاسم في القائمة الجانبية (الأهم)
+                        if(sidebarUserName) sidebarUserName.innerText = fullName;
+                        
+                        // تحديث باقي البيانات
+                        if(headerDisplayName) headerDisplayName.innerText = fullName;
                         if(userPhoneDisplay) userPhoneDisplay.innerText = data.phone;
                     } else {
                         if(sidebarUserName) sidebarUserName.innerText = "مستخدم";
                     }
                 } catch(e) {
+                    console.error("Error fetching user data:", e);
                     if(sidebarUserName) sidebarUserName.innerText = user.email ? user.email.split('@')[0] : "مستخدم";
                 }
             } else {
-                window.location.href = "login.html"; // توجيه لصفحة الدخول إذا لم يكن مسجلاً
+                guestSection.style.display = 'flex';
+                userSection.style.display = 'none';
+                if(userPhoneDisplay) userPhoneDisplay.innerText = "--";
+                if(sidebarUserName) sidebarUserName.innerText = "زائر";
             }
         });
 
+        // --- الخروج ---
         document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth).then(() => window.location.href = "login.html");
-        });
-    </script>
-
-    <script>
-        // --- 1. سكربت التنقل بين الصفحات (بدون تحميل) ---
-        function showSection(sectionId) {
-            // إخفاء جميع الأقسام
-            document.querySelectorAll('.content-section').forEach(sec => {
-                sec.classList.remove('active-section');
-            });
-            // إخفاء القائمة الجانبية في الجوال عند الاختيار
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-
-            // إظهار القسم المطلوب
-            document.getElementById(sectionId).classList.add('active-section');
-
-            // تحديث رابط القائمة النشط
-            document.querySelectorAll('.sidebar-menu a').forEach(link => link.classList.remove('active'));
-            let activeLink = document.querySelector(`.sidebar-menu a[onclick="showSection('${sectionId}')"]`);
-            if(activeLink) activeLink.classList.add('active');
-
-            // إصلاح مشكلة Select2 عند الظهور
-            if(sectionId === 'order-section') {
-                $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة...", width: '100%' });
-            }
-        }
-
-        // زر القائمة في الجوال
-        document.getElementById('menuBtn').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.add('active');
-            document.getElementById('sidebarOverlay').classList.add('active');
-        });
-        document.getElementById('sidebarOverlay').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-        });
-
-        // --- 2. سكربت نموذج الشحن (الحسابات والمدن) ---
-        document.addEventListener("DOMContentLoaded", function() {
-            // تحميل المدن
-            const citySelect = document.getElementById('city_select');
-            fetch('https://1station-glitch.github.io/-/cities.json?v=' + new Date().getTime()) 
-                .then(response => response.text())
-                .then(textData => {
-                    citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
-                    let allLines = textData.split('\n');
-                    allLines.forEach(line => {
-                        let cleanName = line.replace(/[",\[\]]/g, "").trim();
-                        if (cleanName.length > 0) {
-                            let option = document.createElement('option');
-                            option.value = cleanName;
-                            option.textContent = cleanName;
-                            citySelect.appendChild(option);
-                        }
-                    });
-                    // تفعيل Select2
-                    $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة...", width: '100%' });
-                });
-
-            // منطق حساب السعر والشركات
-            const weightInput = document.getElementById("weight");
-            const companyInput = document.getElementById("shippingCompany");
-            const priceNote = document.getElementById("priceNote");
-            const weightWarning = document.getElementById("weightWarning");
-            const redboxNote = document.getElementById("redboxNote");
-            const brolloNote = document.getElementById("brolloNote");
-            const modal = document.getElementById("thankYouModal");
-            const form = document.getElementById("shippingForm");
-
-            // فتح نافذة الشركات
-            companyInput.addEventListener('click', function() {
-                document.getElementById('shippingTypeModal').style.display = 'flex';
-                document.getElementById('companyOptions').style.display = 'none';
-            });
-
-            // حساب السعر
-            function updatePriceNote() {
-                const weight = Number(weightInput.value);
-                const company = companyInput.value;
-                priceNote.style.display = "none";
-                weightWarning.style.display = "none";
-                redboxNote.style.display = "none";
-                brolloNote.style.display = "none";
-
-                if (!weight || !company) return;
-                let price = 0;
-
-                if (company === "redbox") {
-                    redboxNote.style.display = "block";
-                    if (weight > 15) weightWarning.style.display = "block";
-                    else price = 17;
-                }
-                if (company === "aramex") price = weight <= 15 ? 23 : 23 + ((weight-15)*2);
-                if (company === "prolo") {
-                    brolloNote.style.display = "block";
-                    price = weight <= 15 ? 25 : 25 + ((weight-15)*2);
-                }
-
-                if (price > 0) {
-                    priceNote.innerHTML = `💰 السعر: ${price} ريال`;
-                    priceNote.style.display = "block";
-                }
-            }
-
-            weightInput.addEventListener("input", updatePriceNote);
-
-            // إرسال النموذج
-            form.addEventListener("submit", function(e){
-                e.preventDefault();
-                const weight = Number(weightInput.value);
-                const company = companyInput.value;
-                if(company === "redbox" && weight > 15){
-                    alert("وزن الشحنة تجاوز المسموح لريد بوكس");
-                    return;
-                }
-                modal.style.display = "flex";
-                setTimeout(() => { form.submit(); }, 2000);
+            signOut(auth).then(() => {
+                showModal("تم الخروج", "تم تسجيل الخروج بنجاح", "👋", "login.html");
             });
         });
 
-        // دوال مساعدة عالمية (خارج النطاق)
-        let pendingCompany = null;
-        window.showCompanyOptions = function(type) {
-            const companyButtons = document.getElementById('companyButtons');
-            const companyOptions = document.getElementById('companyOptions');
-            companyOptions.style.display = 'block';
-            companyButtons.innerHTML = '';
-            
-            if(type === 'dry') addCompanyBtn('aramex.png', 'aramex');
-            if(type === 'cold') addCompanyBtn('prolo.png', 'prolo');
-            if(type === 'pickup') addCompanyBtn('redbox.png', 'redbox');
-        }
-
-        function addCompanyBtn(imgSrc, value) {
-            const img = document.createElement('img');
-            img.src = imgSrc;
-            img.style.width = "80px"; img.style.height = "80px"; img.style.objectFit = "contain";
-            img.style.border = "2px solid #6c63ff"; img.style.borderRadius = "10px"; img.style.margin = "5px"; img.style.cursor = "pointer";
-            img.onclick = () => selectCompany(value);
-            document.getElementById('companyButtons').appendChild(img);
-        }
-
-        window.selectCompany = function(company) {
-            if(company === "aramex"){
-                pendingCompany = "aramex";
-                document.getElementById('shippingTypeModal').style.display = 'none';
-                document.getElementById("aramexWarningModal").style.display = "flex";
-                return;
-            }
-            document.getElementById("shippingCompany").value = company;
-            document.getElementById('shippingTypeModal').style.display = 'none';
-            // نحتاج استدعاء تحديث السعر يدوياً
-            document.getElementById("weight").dispatchEvent(new Event('input'));
-        }
-
-        window.confirmAramexWarning = function() {
-            document.getElementById("shippingCompany").value = pendingCompany;
-            document.getElementById("aramexWarningModal").style.display = "none";
-            document.getElementById("weight").dispatchEvent(new Event('input'));
-        }
-        
-        window.showBranches = function() {
-            document.getElementById('branchesModal').style.display = 'flex';
-        }
     </script>
 </body>
+
 </html>
