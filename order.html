@@ -214,49 +214,65 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const citySelect = document.getElementById('city_select');
+        
+        // رسالة تأكد أن الكود بدأ العمل
+        console.log("🚀 بدأنا محاولة جلب المدن...");
 
         fetch('./cities.json') 
             .then(response => {
-                if (!response.ok) throw new Error("ملف المدن غير موجود أو الرابط خطأ");
-                return response.json();
-            })
-            .then(jsonResponse => {
-                citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
-
-                // 1. استخراج القائمة (سواء كانت مباشرة أو داخل data)
-                let citiesList = [];
-                if (jsonResponse.data && Array.isArray(jsonResponse.data)) {
-                    citiesList = jsonResponse.data;
-                } else if (Array.isArray(jsonResponse)) {
-                    citiesList = jsonResponse;
-                } else {
-                    console.error("تنسيق الملف غير معروف:", jsonResponse);
+                if (!response.ok) {
+                    // 🛑 هنا المصيدة: لو الملف غير موجود، بيطلع لك تنبيه
+                    alert("❌ خطأ خطير: ملف cities.json غير موجود أو لا يمكن الوصول إليه!\nتأكد أنك رفعته بجانب ملف order.html");
+                    throw new Error("HTTP error " + response.status);
                 }
+                return response.text(); // نستخدم text أولاً عشان نفحص الملف لو فيه أخطاء كتابة
+            })
+            .then(text => {
+                try {
+                    const jsonResponse = JSON.parse(text); // نحاول نحوله لـ JSON
+                    
+                    let citiesList = [];
+                    // فحص مكان البيانات
+                    if (jsonResponse.data && Array.isArray(jsonResponse.data)) citiesList = jsonResponse.data;
+                    else if (Array.isArray(jsonResponse)) citiesList = jsonResponse;
+                    
+                    // تنظيف القائمة
+                    citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
 
-                // 2. تعبئة القائمة (كود الجوكر)
-                citiesList.forEach(cityItem => {
-                    let option = document.createElement('option');
+                    let count = 0;
+                    citiesList.forEach(cityItem => {
+                        let option = document.createElement('option');
+                        // البحث عن الاسم بكل الطرق الممكنة
+                        let name = cityItem.city_name_ar || cityItem.name_ar || cityItem.name_en || cityItem.city_name;
+                        
+                        if (name) {
+                            option.value = name;
+                            option.textContent = name;
+                            citySelect.appendChild(option);
+                            count++;
+                        }
+                    });
                     
-                    // 🔥 التعديل الذكي: يفحص كل الاحتمالات 🔥
-                    // يبحث عن city_name_ar، إذا لم يجده يبحث عن name_ar، وهكذا..
-                    let displayName = cityItem.city_name_ar || cityItem.name_ar || cityItem.city_name || cityItem.name_en || "اسم مجهول";
-                    
-                    if (displayName && displayName !== "اسم مجهول") {
-                        option.value = displayName; 
-                        option.textContent = displayName; 
-                        citySelect.appendChild(option);
+                    if (count === 0) {
+                        alert("⚠️ الملف موجود، لكن لم نجد أي أسماء مدن بداخله!\nتأكد من أسماء الخانات في ملف JSON.");
+                    } else {
+                        // لو اشتغل، خلنا ساكتين أو طلع رسالة نجاح للتجربة
+                        // alert("✅ تم تحميل " + count + " مدينة بنجاح!");
                     }
-                });
 
-                // تفعيل Select2
-                if (typeof $ !== 'undefined' && $.fn.select2) {
-                    $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة..." });
+                    // تفعيل Select2
+                    if (typeof $ !== 'undefined' && $.fn.select2) {
+                        $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة..." });
+                    }
+
+                } catch (e) {
+                    // 🛑 هنا المصيدة الثانية: لو الملف مكتوب غلط
+                    alert("❌ الملف موجود لكنه 'مضروب' (Syntax Error)!\nأنت غالباً نسخت ولصقت 14 صفحة وراء بعض بدون ترتيب.\nالخطأ: " + e.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                // هذا السطر بيطلع لك رسالة الخطأ داخل القائمة عشان تشوفها
-                citySelect.innerHTML = '<option value="">خطأ في البيانات (افتح الكونسول)</option>';
+                citySelect.innerHTML = '<option value="">فشل التحميل</option>';
             });
     });
 </script>
@@ -429,6 +445,7 @@ loadCities();
 </body>
 
 </html>
+
 
 
 
