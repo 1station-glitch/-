@@ -8,37 +8,39 @@
 <link rel="icon" type="image/png" href="station.png">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-	/* 1. تعديل الصندوق الخارجي ليصبح بنفس حجم الخانات العادية */
-.select2-container .select2-selection--single {
-    height: 50px !important;  /* ارتفاع الخانة (عدل الرقم ليطابق خاناتك) */
-    border: 1px solid #ccc !important; /* لون الحدود */
-    border-radius: 8px !important; /* استدارة الزوايا */
-    display: flex !important;
-    align-items: center !important; /* توسيط النص عمودياً */
-    padding: 0 10px; /* مسافة داخلية */
-    background-color: #fff; /* لون الخلفية */
-}
+    /* هذا الكود يخلي شكل القائمة نفس شكل الخانات الثانية بالضبط */
+    .select2-container--default .select2-selection--single {
+        height: 50px !important;       /* ارتفاع الخانة (نفس الخانات العادية) */
+        border: 1px solid #ddd !important; /* لون الإطار (رصاصي فاتح) */
+        border-radius: 10px !important;    /* استدارة الزوايا (عشان تكون دائرية) */
+        padding: 8px 10px !important;      /* مسافة داخلية للكتابة */
+        display: flex !important;
+        align-items: center !important;    /* توسيط النص عمودياً */
+        background-color: #fff !important; /* لون الخلفية أبيض */
+    }
 
-/* 2. تعديل السهم الصغير ليكون في المنتصف */
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 100% !important;
-    top: 0 !important;
-    left: 10px !important; /* مكانه يسار لأن موقعك عربي */
-}
+    /* إزالة السهم القديم وتضبيط مكانه */
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 100% !important;
+        top: 0 !important;
+        left: 15px !important; /* مكان السهم يسار */
+        right: auto !important;
+    }
 
-/* 3. تعديل حجم ونوع الخط داخل القائمة */
-.select2-container .select2-selection--single .select2-selection__rendered {
-    color: #333 !important; /* لون الخط */
-    font-size: 16px !important; /* حجم الخط */
-    padding-right: 0 !important; /* تعديل للمحاذاة العربية */
-}
+    /* تنسيق النص داخل الخانة */
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #333 !important;
+        font-size: 16px !important;
+        padding-right: 0 !important;
+        line-height: normal !important;
+    }
 
-/* (اختياري) تعديل شكل القائمة المنسدلة عند الفتح */
-.select2-dropdown {
-    border-radius: 8px !important;
-    border: 1px solid #ccc !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
+    /* تنسيق القائمة المنسدلة لما تفتح */
+    .select2-dropdown {
+        border-radius: 10px !important;
+        border: 1px solid #ddd !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+    }
 body { font-family: 'Cairo', sans-serif; margin: 0; padding: 0; direction: rtl; min-height: 100vh; background: linear-gradient(120deg, #0f2027, #2c5364); color: #333; overflow-x: hidden; }
 .container { max-width: 850px; margin: 50px auto; background: #ffffffee; padding: 50px 60px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 .logo-wrapper { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; }
