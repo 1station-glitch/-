@@ -216,7 +216,7 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
         const citySelect = document.getElementById('city_select'); // تأكد أن ID القائمة في HTML هو city_select
 
         // جلب ملف المدن
-        fetch('./cities.json') 
+        fetch('cities.json') 
             .then(response => {
                 if (!response.ok) throw new Error("لم يتم العثور على ملف المدن");
                 return response.json();
@@ -431,3 +431,4 @@ loadCities();
 </body>
 
 </html>
+
