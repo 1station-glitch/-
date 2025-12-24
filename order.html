@@ -213,58 +213,56 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const citySelect = document.getElementById('city_select');
+        const citySelect = document.getElementById('city_select'); // تأكد أن ID القائمة في HTML هو city_select
 
         // جلب ملف المدن
         fetch('./cities.json') 
             .then(response => {
-                if (!response.ok) throw new Error("لم يتم العثور على ملف cities.json (تأكد من رفعه)");
+                if (!response.ok) throw new Error("لم يتم العثور على ملف المدن");
                 return response.json();
             })
             .then(jsonResponse => {
                 // تنظيف القائمة
                 citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
 
-                // 1. تحديد مكان المصفوفة (الحل الذكي)
-                // بيانات طرود عادة تكون داخل مفتاح اسمه "data"
+                // 1. استخراج القائمة الصحيحة من البيانات
                 let citiesList = [];
-                if (Array.isArray(jsonResponse)) {
-                    citiesList = jsonResponse; // لو كانت قائمة مباشرة
-                } else if (jsonResponse.data && Array.isArray(jsonResponse.data)) {
-                    citiesList = jsonResponse.data; // لو كانت داخل data (مثل Postman)
+                // بعض ملفات JSON تكون القائمة داخل "data" وبعضها تكون قائمة مباشرة
+                if (jsonResponse.data && Array.isArray(jsonResponse.data)) {
+                    citiesList = jsonResponse.data;
+                } else if (Array.isArray(jsonResponse)) {
+                    citiesList = jsonResponse;
                 } else {
-                    console.error("شكل البيانات غير متوقع:", jsonResponse);
-                    return;
+                    console.error("شكل البيانات غير معروف", jsonResponse);
                 }
 
-                // 2. تعبئة القائمة
+                // 2. تعبئة القائمة بالأسماء
                 citiesList.forEach(cityItem => {
                     let option = document.createElement('option');
                     
-                    // استخراج الاسم العربي (نتأكد أنه موجود وإلا نأخذ الإنجليزي)
-                    let cityName = cityItem.city_name_ar || cityItem.city_name || cityItem;
+                    // 🔥 هنا التعديل المهم: نحدد الاسم العربي أو الإنجليزي 🔥
+                    // نحاول نجيب الاسم العربي، لو ما لقيناه نجيب الإنجليزي
+                    let displayName = cityItem.city_name_ar || cityItem.city_name || "اسم غير معروف";
                     
-                    // في طرود نحتاج نرسل "الاسم - المنطقة" لو توفرت، أو الاسم فقط
-                    // للتجربة الآن سنضع الاسم كما يظهر
-                    
-                    option.value = cityName; // القيمة المرسلة
-                    option.textContent = cityName; // النص الظاهر للعميل
+                    // نحدد القيمة والنص الظاهر
+                    option.value = displayName; 
+                    option.textContent = displayName; 
                     
                     citySelect.appendChild(option);
                 });
 
-                // تفعيل Select2 إذا كانت موجودة
+                // تفعيل Select2 (للبحث وشكل القائمة الجميل)
                 if (typeof $ !== 'undefined' && $.fn.select2) {
                     $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة..." });
                 }
             })
             .catch(error => {
-                console.error('Error details:', error);
-                // طباعة الخطأ في القائمة عشان نشوفه
-                citySelect.innerHTML = '<option value="">خطأ: افتح الكونسول F12 للتفاصيل</option>';
+                console.error('Error:', error);
+                citySelect.innerHTML = '<option value="">فشل التحميل</option>';
             });
     });
 </script>
+	
 <script>
 const weightInput = document.getElementById("weight");
 const companyInput = document.getElementById("shippingCompany");
@@ -431,4 +429,5 @@ loadCities();
 </script>
 
 </body>
+
 </html>
