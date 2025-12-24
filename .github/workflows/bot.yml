@@ -28,4 +28,6 @@ jobs:
         env:
           # هنا نربط المفتاح السري بالكود
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+          TOROD_EMAIL: ${{ secrets.TOROD_EMAIL }}
+          TOROD_PASSWORD: ${{ secrets.TOROD_PASSWORD }}
         run: python main.py
