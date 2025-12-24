@@ -218,9 +218,10 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const citySelect = document.getElementById('city_select');
-        // الرابط الكامل للملف لضمان الوصول
+        // الرابط الكامل لضمان الوصول
         const fileUrl = "https://1station-glitch.github.io/-/cities.json";
 
+        // 1. جلب البيانات
         fetch(fileUrl + '?v=' + new Date().getTime()) 
             .then(response => {
                 if (!response.ok) throw new Error("الملف غير موجود");
@@ -231,12 +232,11 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
 
                 let allLines = textData.split('\n');
 
+                // 2. تعبئة القائمة
                 allLines.forEach(line => {
-                    // 🔥 هنا التعديل السحري:
-                    // نضيف \[ و \] داخل الاستبدال لكي يحذفها مع الفواصل وعلامات التنصيص
+                    // تنظيف الأقواس والفواصل وعلامات التنصيص
                     let cleanName = line.replace(/[",\[\]]/g, "").trim();
 
-                    // الآن الشرط يقول: إذا الاسم ليس فارغاً، اعرضه
                     if (cleanName.length > 0) {
                         let option = document.createElement('option');
                         option.value = cleanName;
@@ -245,10 +245,13 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
                     }
                 });
 
-                // تفعيل Select2
-                if (typeof $ !== 'undefined' && $.fn.select2) {
-                    $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة..." });
-                }
+                // 3. 🔥 هذا هو السطر الجديد المهم جداً لتفعيل البحث 🔥
+                // بدون هذا السطر، ستضل القائمة عادية حتى لو أضفت المكتبات
+                $('#city_select').select2({
+                    dir: "rtl", // عشان البحث يكون من اليمين
+                    placeholder: "ابحث عن المدينة...", // نص يظهر قبل الاختيار
+                    width: '100%' // عشان تاخذ عرض الخانة كامل
+                });
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -425,6 +428,7 @@ loadCities();
 </body>
 
 </html>
+
 
 
 
