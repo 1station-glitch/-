@@ -5,7 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>تسجيل متجر جديد</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    /* تنسيق خاص لجعل قائمة المدن مطابقة تماماً لتصميم باقي الخانات */
+    .select2-container { width: 100% !important; }
     
+    .select2-container .select2-selection--single {
+        height: 50px !important;              /* ارتفاع الخانة 50 بكسل */
+        border: 1px solid #ccc !important;    /* لون الحدود */
+        border-radius: 12px !important;       /* انحناء الزوايا */
+        background-color: #fff !important;    /* لون الخلفية */
+        display: flex !important;
+        align-items: center !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* تنسيق النص داخل القائمة */
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        padding-right: 15px !important;
+        padding-left: 30px !important;
+        color: #333 !important;
+        font-size: 14px !important;
+        font-family: 'Cairo', sans-serif !important;
+    }
+
+    /* تنسيق السهم الصغير */
+    .select2-container .select2-selection--single .select2-selection__arrow {
+        height: 100% !important;
+        top: 0 !important;
+        left: 10px !important;
+    }
+
+    /* عند فتح القائمة */
+    .select2-dropdown {
+        border: 1px solid #6c63ff !important;
+        border-radius: 0 0 12px 12px !important;
+    }
+    
+    /* مربع البحث */
+    .select2-search__field {
+        font-family: 'Cairo', sans-serif !important;
+        border-radius: 8px !important;
+    }
+</style>
+
     <style>
         /* نفس التصميم السابق (النظيف والمرتب) */
         :root { --primary: #3b82f6; --bg: #f3f4f6; --text: #1f2937; }
@@ -71,11 +116,13 @@
             <label>رقم الجوال للتواصل</label>
             <input type="tel" id="storePhone" placeholder="05xxxxxxxx">
         </div>
-
-        <div class="form-group">
-            <label>المدينة</label>
-            <input type="text" id="city" placeholder="الرياض">
-        </div>
+ 
+        <div style="margin-bottom: 15px;">
+          <label style="display:block; margin-bottom:5px; font-weight:bold;">المدينة</label>
+          <select id="city_select" name="city" required style="width: 100%;">
+          <option value="">جاري تحميل المدن...</option>
+          </select>
+      </div>
 
         <div class="form-group">
             <label>الحي</label>
@@ -190,5 +237,55 @@
             }
         });
     </script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // تحديد العنصر
+        const citySelect = document.getElementById('city_select');
+        // رابط ملف المدن
+        const fileUrl = "https://1station-glitch.github.io/-/cities.json";
+
+        // إضافة رقم عشوائي للرابط لمنع تعليق الكاش (يجيب أحدث نسخة دائماً)
+        fetch(fileUrl + '?v=' + new Date().getTime()) 
+            .then(response => {
+                if (!response.ok) throw new Error("لم يتم العثور على الملف");
+                return response.text(); // نجلب البيانات كنص
+            })
+            .then(textData => {
+                // تنظيف القائمة
+                citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
+
+                // تقسيم النص إلى سطور
+                let allLines = textData.split('\n');
+
+                allLines.forEach(line => {
+                    // 🔥 كود التنظيف السحري (يزيل الأقواس " ] [ " والفواصل وعلامات التنصيص)
+                    let cleanName = line.replace(/[",\[\]]/g, "").trim();
+
+                    if (cleanName.length > 0) {
+                        let option = document.createElement('option');
+                        option.value = cleanName;
+                        option.textContent = cleanName;
+                        citySelect.appendChild(option);
+                    }
+                });
+
+                // تفعيل مكتبة Select2 للبحث والتصميم
+                if (typeof $ !== 'undefined' && $.fn.select2) {
+                    $('#city_select').select2({
+                        dir: "rtl",
+                        placeholder: "ابحث عن المدينة...",
+                        width: '100%'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                citySelect.innerHTML = '<option value="">فشل تحميل القائمة</option>';
+            });
+    });
+</script>
 </body>
 </html>
