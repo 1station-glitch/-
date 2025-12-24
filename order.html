@@ -215,49 +215,56 @@ button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108,99,2
     document.addEventListener("DOMContentLoaded", function() {
         const citySelect = document.getElementById('city_select');
 
-        // رابط الملف مع كود يمنع التخزين المؤقت (عشان يجيب الجديد غصب)
-        fetch('./cities.json?v=' + new Date().getTime()) 
+        // 🔥 هنا التغيير: وضعنا الرابط الكامل للملف عشان ما يضيع
+        const fileUrl = "https://1station-glitch.github.io/-/cities.json";
+
+        console.log("جاري محاولة تحميل الملف من:", fileUrl);
+
+        fetch(fileUrl + '?v=' + new Date().getTime()) 
             .then(response => {
-                if (!response.ok) throw new Error("الملف غير موجود");
-                return response.text(); // نجيبه كنص خاااام
+                if (!response.ok) {
+                    // إذا الملف غير موجود، نطلع تنبيه يوضح السبب
+                    alert("❌ خطأ: لم يتم العثور على ملف المدن!\nتأكد أن الملف cities.json موجود في GitHub بنفس الاسم تماماً.");
+                    throw new Error("HTTP error " + response.status);
+                }
+                return response.text();
             })
             .then(textData => {
                 citySelect.innerHTML = '<option value="">اختر المدينة...</option>';
 
-                // 1. نقسم النص لسطور
                 let allLines = textData.split('\n');
 
-                // 2. نحذف السطر الأول والأخير فقط
-                // (دالة slice(1, -1) تعني: ابدأ من السطر الثاني، وتوقف قبل السطر الأخير بواحد)
+                // حذف السطر الأول والأخير (الأقواس) إذا كان الملف يحتوي عليها
                 if (allLines.length > 2) {
-                    let cityLines = allLines.slice(1, -1);
-
-                    // 3. نلف على السطور اللي بقيت
-                    cityLines.forEach(line => {
-                        // تنظيف: نحذف علامات التنصيص " ونحذف الفاصلة , ونحذف المسافات الزايدة
-                        let cleanName = line.replace(/[",]/g, "").trim();
-
-                        // شرط بسيط: إذا السطر مو فاضي بعد التنظيف، اعرضه
-                        if (cleanName.length > 0) {
-                            let option = document.createElement('option');
-                            option.value = cleanName;
-                            option.textContent = cleanName;
-                            citySelect.appendChild(option);
-                        }
-                    });
-
-                    // تفعيل Select2
-                    if (typeof $ !== 'undefined' && $.fn.select2) {
-                        $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة..." });
+                    // نتأكد هل السطر الأول فعلاً قوس؟ إذا نعم نحذفه، إذا لا نخليه
+                    if (allLines[0].trim().includes("[")) {
+                         allLines = allLines.slice(1);
                     }
+                    if (allLines[allLines.length - 1].trim().includes("]")) {
+                         allLines = allLines.slice(0, -1);
+                    }
+                }
 
-                } else {
-                    console.error("الملف فاضي أو فيه سطرين بس");
+                allLines.forEach(line => {
+                    // تنظيف السطر من علامات التنصيص والفواصل
+                    let cleanName = line.replace(/[",]/g, "").trim();
+
+                    if (cleanName.length > 0) {
+                        let option = document.createElement('option');
+                        option.value = cleanName;
+                        option.textContent = cleanName;
+                        citySelect.appendChild(option);
+                    }
+                });
+
+                // تفعيل Select2
+                if (typeof $ !== 'undefined' && $.fn.select2) {
+                    $('#city_select').select2({ dir: "rtl", placeholder: "ابحث عن المدينة..." });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                citySelect.innerHTML = '<option value="">فشل تحميل القائمة</option>';
+                citySelect.innerHTML = '<option value="">حدث خطأ في التحميل</option>';
             });
     });
 </script>
@@ -430,6 +437,7 @@ loadCities();
 </body>
 
 </html>
+
 
 
 
