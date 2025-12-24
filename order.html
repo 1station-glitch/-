@@ -8,66 +8,62 @@
 <link rel="icon" type="image/png" href="station.png">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* الخانة نفسها (نفس باقي الحقول) */
-.select2-container--default .select2-selection--single {
-    height: 50px !important;
-    border: 1px solid #ddd !important;
-    border-radius: 10px !important;
-    padding: 0 12px !important;
-    display: flex !important;
-    align-items: center !important;
-    background-color: #fff !important;
-    box-sizing: border-box !important;
-}
+    /* 1. ضبط الصندوق الرئيسي ليشبه الخانات العادية تماماً */
+    .select2-container .select2-selection--single {
+        height: 50px !important;              /* نفس ارتفاع الخانات العادية */
+        border: 1px solid #ccc !important;    /* نفس لون حدود الخانات */
+        border-radius: 8px !important;        /* نفس تدويرة الزوايا */
+        background-color: #f9f9f9 !important; /* لون الخلفية (غالباً رمادي فاتح جداً أو أبيض) */
+        display: flex !important;             /* تقنية لضمان توسيط النص */
+        align-items: center !important;       /* توسيط عمودي للنص */
+        box-shadow: none !important;          /* إزالة أي ظل افتراضي */
+        outline: none !important;             /* إزالة الإطار الأزرق المزعج */
+    }
 
-/* النص داخل الخانة */
-.select2-container--default
-.select2-selection--single
-.select2-selection__rendered {
-    color: #333 !important;
-    font-size: 16px !important;
-    line-height: 50px !important;
-    padding-right: 0 !important;
-    padding-left: 25px !important; /* مساحة للسهم */
-    text-align: right !important;
-}
+    /* 2. ضبط النص داخل الخانة */
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        padding-right: 15px !important;       /* مسافة من اليمين عشان النص ما يلصق */
+        padding-left: 30px !important;        /* مسافة من اليسار عشان السهم */
+        color: #333 !important;               /* لون الخط */
+        font-size: 16px !important;           /* حجم الخط */
+        line-height: normal !important;       /* إلغاء تأثيرات الارتفاع الغريبة */
+        width: 100% !important;
+    }
 
-/* سهم القائمة */
-.select2-container--default
-.select2-selection--single
-.select2-selection__arrow {
-    height: 100% !important;
-    top: 0 !important;
-    left: 12px !important;   /* السهم يسار */
-    right: auto !important;
-}
+    /* 3. ضبط السهم الصغير */
+    .select2-container .select2-selection--single .select2-selection__arrow {
+        height: 100% !important;              /* ارتفاع كامل */
+        top: 0 !important;
+        left: 10px !important;                /* مكانه يسار */
+        right: auto !important;               /* إلغاء اليمين */
+        width: 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
 
-/* إجبار القائمة المنسدلة تكون تحت الخانة */
-.select2-container--open .select2-dropdown {
-    top: 100% !important;
-    margin-top: 5px !important;
-}
+    /* 4. عند الضغط على القائمة (Focus) - تغيير لون الحدود */
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #007bff !important;     /* لون الحدود لما تفتح القائمة (أزرق مثلاً) */
+        border-bottom-left-radius: 0 !important;  /* عشان تلصق بالقائمة تحت */
+        border-bottom-right-radius: 0 !important;
+    }
 
-/* تنسيق القائمة المنسدلة */
-.select2-dropdown {
-    border-radius: 10px !important;
-    border: 1px solid #ddd !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
-    overflow: hidden !important;
-}
+    /* 5. ضبط القائمة المنسدلة (اللي تطلع تحت) */
+    .select2-dropdown {
+        border: 1px solid #007bff !important; /* حدود القائمة */
+        border-top: none !important;          /* عشان تندمج مع الخانة */
+        border-radius: 0 0 8px 8px !important;/* تدوير الزوايا من تحت بس */
+        background-color: #fff !important;
+        z-index: 9999 !important;             /* عشان تطلع فوق كل شي */
+    }
 
-/* عناصر القائمة */
-.select2-results__option {
-    padding: 10px 15px !important;
-    font-size: 15px !important;
-    text-align: right !important;
-}
-
-/* عند المرور */
-.select2-results__option--highlighted {
-    background-color: #f5f5f5 !important;
-    color: #000 !important;
-}
+    /* 6. تحسين شكل خيارات البحث */
+    .select2-search__field {
+        border-radius: 5px !important;
+        border: 1px solid #ddd !important;
+        padding: 5px !important;
+    }
 body { font-family: 'Cairo', sans-serif; margin: 0; padding: 0; direction: rtl; min-height: 100vh; background: linear-gradient(120deg, #0f2027, #2c5364); color: #333; overflow-x: hidden; }
 .container { max-width: 850px; margin: 50px auto; background: #ffffffee; padding: 50px 60px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 .logo-wrapper { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; }
@@ -488,6 +484,7 @@ loadCities();
 </body>
 
 </html>
+
 
 
 
