@@ -23,8 +23,10 @@ print("🔧 جاري تهيئة الاتصال...")
 if not firebase_admin._apps:
     try:
         key_content = os.environ.get('FIREBASE_KEY')
+        
+        # تصحيح الخطأ هنا 👇 (استخدمنا علامة تنصيص مفردة للكلمة الداخلية)
         if not key_content:
-            print("❌ لم يتم العثور على مفتاح فايربيس ("FIREBASE_KEY" مفقود)")
+            print("❌ لم يتم العثور على مفتاح فايربيس (FIREBASE_KEY مفقود)")
             sys.exit(1)
             
         key_dict = json.loads(key_content)
@@ -69,14 +71,13 @@ def add_address_to_torod(order_id, data):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     wait = WebDriverWait(driver, 25)
 
-    # 👇 الدالة الذكية للكتابة (تم استرجاعها)
     def smart_send_keys(element_id, text):
         if not text: return
         for i in range(3):
             try:
                 element = wait.until(EC.presence_of_element_located((By.ID, element_id)))
                 wait.until(EC.element_to_be_clickable((By.ID, element_id)))
-                element.clear() # مسح القديم
+                element.clear()
                 element.send_keys(str(text))
                 return True
             except (StaleElementReferenceException, ElementNotInteractableException):
@@ -115,7 +116,7 @@ def add_address_to_torod(order_id, data):
         search_field.send_keys(Keys.ENTER)
         time.sleep(5) 
 
-        # --- البيانات (الآن نستخدم smart_send_keys ✅) ---
+        # --- البيانات ---
         print("✍️ تعبئة البيانات...")
         smart_send_keys("merchant_address_form_address_details", f"حي {data.get('district', '')} - شارع {data.get('street', '')}")
         smart_send_keys("merchant_address_form_name", "1station")
@@ -123,7 +124,7 @@ def add_address_to_torod(order_id, data):
         smart_send_keys("merchant_address_form_phone_number", data.get('receiver_phone', ''))
         smart_send_keys("merchant_address_form_email", data.get('email', 'customer@example.com'))
 
-        driver.save_screenshot("2_data_filled.png") # صورة للتأكد من البيانات
+        driver.save_screenshot("2_data_filled.png") 
 
         # --- العداد والحفظ ---
         save_btn = wait.until(EC.presence_of_element_located((By.ID, "address_form_btn")))
@@ -145,7 +146,6 @@ def add_address_to_torod(order_id, data):
             
             time.sleep(5) 
             
-            # صورة لكل محاولة عشان نعرف وش صار
             driver.save_screenshot(f"3_try_{attempt}_result.png")
             
             error_exists = False
@@ -157,7 +157,7 @@ def add_address_to_torod(order_id, data):
             
             if not error_exists:
                 print(f"✨ تم الحفظ! الرمز: {current_code}")
-                driver.save_screenshot("4_success.png") # صورة النجاح
+                driver.save_screenshot("4_success.png") 
                 
                 db.collection('orders').document(order_id).update({'status': 'done'})
                 print("✅ تم التحديث في فايربيس.")
