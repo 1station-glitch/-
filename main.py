@@ -1,6 +1,7 @@
 import os
-import time
+import sys
 import json
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -9,169 +10,214 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import StaleElementReferenceException, ElementNotInteractableException, NoSuchElementException
+
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, firestore
 
 # ==================================================
-# 1️⃣ إعدادات الاتصال (أسرار GitHub)
+# 1️⃣ إعدادات الاتصال (من GitHub Secrets)
 # ==================================================
-# قراءة مفتاح فاير بيس
-firebase_config_str = os.environ.get('FIREBASE_KEY')
-if firebase_config_str:
-    cred_dict = json.loads(firebase_config_str)
-    cred = credentials.Certificate(cred_dict)
-    # ⚠️⚠️ تأكد أن رابط الداتابيز هنا صحيح وينتهي بـ firebaseio.com
-    firebase_admin.initialize_app(cred, {'databaseURL': 'https://YOUR-DB-URL.firebaseio.com/'})
-else:
-    print("❌ خطأ: لم يتم العثور على مفاتيح فاير بيس!")
+print("🔧 جاري تهيئة الاتصال بـ Firebase...")
 
-# قراءة بيانات دخول طرود
+if not firebase_admin._apps:
+    try:
+        # قراءة مفتاح فايربيس من متغيرات البيئة
+        key_content = os.environ.get('FIREBASE_KEY')
+        
+        if not key_content:
+            print("❌ خطأ قاتل: لم يتم العثور على Secret باسم FIREBASE_KEY")
+            sys.exit(1)
+            
+        # تحويل النص إلى JSON
+        try:
+            key_dict = json.loads(key_content)
+            cred = credentials.Certificate(key_dict)
+            firebase_admin.initialize_app(cred)
+            print("✅ تم الاتصال بـ Firebase بنجاح.")
+        except json.JSONDecodeError as e:
+            print(f"❌ خطأ في قراءة ملف JSON: {e}")
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ خطأ غير متوقع: {e}")
+        sys.exit(1)
+
+db = firestore.client()
+
+# استلام بيانات الدخول لطرود
 SITE_EMAIL = os.environ.get('TOROD_EMAIL')
 SITE_PASS = os.environ.get('TOROD_PASSWORD')
 
+if not SITE_EMAIL or not SITE_PASS:
+    print("❌ خطأ: لم يتم العثور على ايميل أو باسورد طرود في Secrets")
+    sys.exit(1)
+
 # ==================================================
-# 2️⃣ دالة تعبئة العنوان (المحرك الرئيسي)
+# 🔢 دالة العداد (تخزين سحابي في Firestore)
+# ==================================================
+def get_next_sequence_code():
+    # نستخدم مستند في فايربيس لتخزين الرقم بدلاً من ملف txt
+    # لأن ملفات GitHub تنحذف بعد كل تشغيل
+    doc_ref = db.collection('settings').document('counter')
+    
+    try:
+        doc = doc_ref.get()
+        if doc.exists:
+            current = doc.to_dict().get('value', 1)
+        else:
+            current = 1
+            
+        next_val = current + 1
+        # تحديث الرقم في فايربيس للمرة القادمة
+        doc_ref.set({'value': next_val})
+        
+        return str(next_val).zfill(4)
+    except Exception as e:
+        print(f"⚠️ خطأ في العداد السحابي: {e}")
+        return "9999" # رقم طوارئ
+
+# ==================================================
+# 2️⃣ وظيفة الأتمتة
 # ==================================================
 def add_address_to_torod(order_id, data):
-    print(f"🚀 بدء معالجة الطلب: {order_id}")
+    print(f"\n🚀 جاري معالجة الطلب: {order_id}")
     
-    # إعدادات المتصفح
     chrome_options = Options()
-    # chrome_options.add_argument("--headless") # ⚠️ شغل هذا السطر لاحقاً في GitHub Actions
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument("--lang=ar")
+    # إعدادات خاصة بسيرفرات GitHub (مهمة جداً)
+    chrome_options.add_argument("--headless=new") 
+    chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--lang=ar")
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 25)
+
+    def smart_send_keys(element_id, text):
+        if not text: return
+        for i in range(3):
+            try:
+                element = wait.until(EC.presence_of_element_located((By.ID, element_id)))
+                wait.until(EC.element_to_be_clickable((By.ID, element_id)))
+                element.clear()
+                element.send_keys(str(text))
+                return True
+            except (StaleElementReferenceException, ElementNotInteractableException):
+                time.sleep(2)
+        return False
 
     try:
-        # --- (أ) تسجيل الدخول ---
-        print("🔐 جاري تسجيل الدخول...")
+        # --- تسجيل الدخول ---
         driver.get("https://torod.co/ar/login")
-        
-        wait.until(EC.visibility_of_element_located((By.NAME, "email"))).send_keys(SITE_EMAIL)
+        wait.until(EC.presence_of_element_located((By.NAME, "email"))).send_keys(SITE_EMAIL)
         driver.find_element(By.NAME, "password").send_keys(SITE_PASS)
-        driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
-        time.sleep(5) # انتظار تحميل الداشبورد
-
-        # --- (ب) الانتقال لصفحة العناوين ---
-        print("📍 الانتقال لصفحة العناوين...")
-        driver.get("https://torod.co/ar/settings/addresses")
-        time.sleep(3)
-
-        # ضغط زر "عنوان جديد"
-        print("➕ ضغط زر إضافة عنوان جديد...")
-        add_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ga4-addressesDiv"]/div/div/div[2]/a')))
-        add_btn.click()
-        time.sleep(3)
-
-        # --- (ج) 🛑 إيقاف الخريطة (Toggle Map) ---
-        print("🗺️ إيقاف الخريطة (تفعيل الإدخال اليدوي)...")
+        login_btn = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/form/p[4]/input[1]")
+        driver.execute_script("arguments[0].click();", login_btn)
+        wait.until(EC.url_changes("https://torod.co/ar/login"))
+        
+        # --- الانتقال للعنوان ---
+        driver.get("https://torod.co/ar/settings/address")
+        wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ga4-addressesDiv"]/div/div/div[2]/a'))).click()
+        
         try:
             map_toggle = wait.until(EC.element_to_be_clickable((By.ID, "merchant_address_form_google_map_toggle")))
-            map_toggle.click()
-            time.sleep(2)
-        except:
-            print("⚠️ تنبيه: لم أستطع ضغط زر قفل الخريطة (قد تكون مقفلة أصلاً).")
+            driver.execute_script("arguments[0].click();", map_toggle)
+        except: pass
+        time.sleep(2)
 
-        # --- (د) تعبئة البيانات النصية ---
-        print("✍️ تعبئة البيانات الأساسية...")
-        driver.find_element(By.ID, "merchant_address_form_name").send_keys(data.get('store_name', 'اسم المتجر'))
-        driver.find_element(By.ID, "merchant_address_form_contact_name").send_keys(data.get('receiver_name', 'عميل'))
-        driver.find_element(By.ID, "merchant_address_form_title").send_keys(order_id) # رقم الفرع = رقم الطلب
-        driver.find_element(By.ID, "merchant_address_form_phone_number").send_keys(data.get('receiver_phone', '0500000000'))
-        driver.find_element(By.ID, "merchant_address_form_email").send_keys("customer@example.com")
-
-        # --- (هـ) معالجة المدينة والمنطقة (الذكية 🧠) ---
-        print("🏙️ اختيار المدينة والمنطقة...")
-        # 1. فتح القائمة
-        driver.find_element(By.ID, "select2-merchant_address_form_city-container").click()
-        time.sleep(1)
-        
-        # 2. تجهيز الأسماء
+        # --- المدينة ---
         city_name = data.get('city', '').strip()
-        region_name = data.get('region', '').strip()
-        
-        # 3. الكتابة في البحث
-        search_box = driver.find_element(By.CLASS_NAME, "select2-search__field")
-        search_box.send_keys(city_name)
-        time.sleep(3) # انتظار النتائج
+        print(f"🏙️ المدينة: {city_name}")
 
-        # 4. البحث عن التطابق (المدينة + المنطقة)
-        results = driver.find_elements(By.CSS_SELECTOR, ".select2-results__option")
-        found = False
+        target_btn_id = "select2-merchant_address_form_city-container"
+        city_opener = wait.until(EC.element_to_be_clickable((By.ID, target_btn_id)))
+        city_opener.click()
         
-        for result in results:
-            text = result.text
-            # هل النص يحتوي على اسم المدينة واسم المنطقة معاً؟
-            if city_name in text and region_name in text:
-                print(f"   ✅ تم اختيار: {text}")
-                result.click()
-                found = True
-                break
+        search_field = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "select2-search__field")))
+        search_field.send_keys(city_name)
         
-        # خطة بديلة: إذا لم يجد المنطقة، يختار أي شيء فيه اسم المدينة
-        if not found:
-            print("   ⚠️ لم أجد تطابقاً للمنطقة، سأختار بناءً على المدينة فقط.")
-            for result in results:
-                if city_name in result.text:
-                    result.click()
-                    found = True
-                    break
-        
-        # خطة الطوارئ: اضغط انتر
-        if not found:
-            search_box.send_keys(Keys.ENTER)
+        print("   ⏳ انتظار 5 ثواني...")
+        time.sleep(5) 
+        search_field.send_keys(Keys.ENTER)
+        time.sleep(5) 
 
-        # --- (و) معالجة الحي ---
-        print("🏘️ اختيار الحي...")
-        try:
-            driver.find_element(By.ID, "select2-merchant_address_form_district-container").click()
+        # --- البيانات ---
+        print("✍️ تعبئة البيانات...")
+        smart_send_keys("merchant_address_form_address_details", f"حي {data.get('district', '')} - شارع {data.get('street', '')}")
+        smart_send_keys("merchant_address_form_name", "1station")
+        smart_send_keys("merchant_address_form_contact_name", f"{data.get('receiver_name', '')} (غير معدل)")
+        smart_send_keys("merchant_address_form_phone_number", data.get('receiver_phone', ''))
+        smart_send_keys("merchant_address_form_email", data.get('email', 'customer@example.com'))
+
+        # --- العداد والحفظ ---
+        print("🔢 معالجة الرمز...")
+        save_btn = wait.until(EC.presence_of_element_located((By.ID, "address_form_btn")))
+        
+        current_code = get_next_sequence_code() 
+        
+        for attempt in range(10):
+            print(f"   🔄 محاولة ({attempt+1}) بالرمز: {current_code}")
+            
+            try:
+                title_field = driver.find_element(By.ID, "merchant_address_form_title")
+                title_field.clear()
+                title_field.send_keys(current_code)
+            except: time.sleep(1)
+            
             time.sleep(1)
-            search_box_dist = driver.find_element(By.CLASS_NAME, "select2-search__field")
-            search_box_dist.send_keys(data.get('district', ''))
-            time.sleep(2)
-            search_box_dist.send_keys(Keys.ENTER)
-        except:
-            print("⚠️ مشكلة بسيطة في اختيار الحي، سأتجاوزها.")
+            
+            try:
+                driver.execute_script("arguments[0].scrollIntoView();", save_btn)
+                driver.execute_script("arguments[0].click();", save_btn)
+            except:
+                save_btn.click()
+                
+            print("   ⏳ فحص النتيجة...")
+            time.sleep(5) 
+            
+            error_exists = False
+            try:
+                if driver.find_element(By.ID, "merchant_address_form_title-error").is_displayed():
+                    error_exists = True
+            except NoSuchElementException:
+                error_exists = False
+            
+            if not error_exists:
+                print(f"✨ تم الحفظ! الرمز: {current_code}")
+                db.collection('orders').document(order_id).update({'status': 'done'})
+                print("✅ تم تحديث الحالة في فايربيس.")
+                return True
+            
+            print("   ⚠️ الرمز مكرر، جاري التغيير...")
+            current_code = get_next_sequence_code() 
 
-        # --- (ز) العنوان التفصيلي ---
-        driver.find_element(By.ID, "merchant_address_form_address_details").send_keys(data.get('street', '-'))
-
-        # --- (ح) الضغط على زر الحفظ النهائي ✅ ---
-        print("💾 جاري الحفظ...")
-        save_btn = wait.until(EC.element_to_be_clickable((By.ID, "address_form_btn")))
-        save_btn.click()
-        
-        print("✅✅ تمت العملية بنجاح! تم حفظ العنوان.")
-        time.sleep(5)
-        return True
+        return False
 
     except Exception as e:
-        print(f"❌ حدث خطأ أثناء المعالجة: {e}")
-        # حفظ صورة للمشكلة
-        driver.save_screenshot(f"error_{order_id}.png")
+        print(f"❌ خطأ أثناء المعالجة: {e}")
         return False
-        
     finally:
         driver.quit()
 
 # ==================================================
-# 3️⃣ حلقة البحث عن طلبات جديدة
+# 3️⃣ التشغيل (مرة واحدة - GitHub Schedule)
 # ==================================================
-print("🔄 جاري فحص قاعدة البيانات...")
-ref = db.reference('orders')
-orders = ref.get()
-
-if orders:
-    for key, val in orders.items():
-        # نفحص إذا الحالة "pending" (معلق)
-        if val.get('status') == 'pending':
-            success = add_address_to_torod(key, val)
-            if success:
-                # تحديث الحالة إلى "done" عشان ما يكررها المرة الجاية
-                ref.child(key).update({'status': 'done'})
-else:
-    print("💤 لا توجد طلبات جديدة.")
+if __name__ == "__main__":
+    print("🤖 بدء تشغيل البوت المجدول...")
+    
+    try:
+        # جلب الطلبات المعلقة
+        orders_ref = db.collection('orders').where('status', '==', 'pending')
+        orders = list(orders_ref.stream())
+        
+        if len(orders) > 0:
+            print(f"🔔 تم العثور على {len(orders)} طلبات جديدة.")
+            for doc in orders:
+                add_address_to_torod(doc.id, doc.to_dict())
+        else:
+            print("💤 لا توجد طلبات جديدة.")
+            
+    except Exception as e:
+        print(f"❌ خطأ عام: {e}")
+        sys.exit(1)
