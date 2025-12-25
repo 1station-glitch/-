@@ -2,28 +2,36 @@ name: تشغيل بوت طرود
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # تشغيل كل 15 دقيقة
-  workflow_dispatch:      # يسمح لك بتشغيله يدوياً بضغطة زر للتجربة
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
 
     steps:
-      - name: سحب الكود (Checkout)
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: إعداد بايثون
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: تثبيت المكتبات
-        run: pip install -r requirements.txt
+      - name: Install libraries
+        run: pip install selenium webdriver-manager firebase-admin
 
-      - name: تشغيل البوت
+      - name: Run Python Script
         env:
           TOROD_EMAIL: ${{ secrets.TOROD_EMAIL }}
           TOROD_PASSWORD: ${{ secrets.TOROD_PASSWORD }}
-          FIREBASE_KEY: ${{secrets.FIREBASE_KEY}}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         run: python main.py
+
+      # 👇👇👇 هذه الخطوة الجديدة لرفع الصور 👇👇👇
+      - name: Upload Screenshots
+        if: always() # ارفع الصور حتى لو فشل البوت
+        uses: actions/upload-artifact@v4
+        with:
+          name: bot-screenshots
+          path: "*.png"
