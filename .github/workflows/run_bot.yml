@@ -1,0 +1,29 @@
+name: تشغيل بوت طرود
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # تشغيل كل 15 دقيقة
+  workflow_dispatch:      # يسمح لك بتشغيله يدوياً بضغطة زر للتجربة
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: سحب الكود (Checkout)
+        uses: actions/checkout@v3
+
+      - name: إعداد بايثون
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: تثبيت المكتبات
+        run: pip install -r requirements.txt
+
+      - name: تشغيل البوت
+        env:
+          TOROD_EMAIL: ${{ secrets.TOROD_EMAIL }}
+          TOROD_PASSWORD: ${{ secrets.TOROD_PASSWORD }}
+          FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
+        run: python main.py
