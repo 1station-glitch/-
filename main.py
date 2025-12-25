@@ -24,7 +24,7 @@ if not firebase_admin._apps:
     try:
         key_content = os.environ.get('FIREBASE_KEY')
         if not key_content:
-            print("❌ لم يتم العثور على مفتاح فايربيس (Secret مفقود)")
+            print("❌ لم يتم العثور على مفتاح فايربيس ("FIREBASE_KEY" مفقود)")
             sys.exit(1)
             
         key_dict = json.loads(key_content)
