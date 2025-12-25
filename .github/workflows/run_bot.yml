@@ -25,5 +25,5 @@ jobs:
         env:
           TOROD_EMAIL: ${{ secrets.TOROD_EMAIL }}
           TOROD_PASSWORD: ${{ secrets.TOROD_PASSWORD }}
-          FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
+          FIREBASE_KEY: ${{secrets.FIREBASE_KEY}}
         run: python main.py
