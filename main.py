@@ -31,12 +31,11 @@ else:
 # ==================================================
 if not firebase_admin._apps:
     try:
-        key_content = os.environ.get('FIREBASE_KEY')
-        
-        # تصحيح الخطأ هنا 👇 (استخدمنا علامة تنصيص مفردة للكلمة الداخلية)
-        if not key_content:
-            print("❌ لم يتم العثور على مفتاح فايربيس (FIREBASE_KEY مفقود)")
-            sys.exit(1)
+        # السيناريو 1: نحن في قيت هوب
+        if IS_GITHUB_ACTION:
+            key_content = os.environ.get('FIREBASE_CREDENTIALS')
+            if not key_content: sys.exit("❌ Secret missing")
+            cred = credentials.Certificate(json.loads(key_content))
         
         # السيناريو 2: نحن في جهازك
         else:
