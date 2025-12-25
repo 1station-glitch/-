@@ -16,7 +16,7 @@ from firebase_admin import credentials, db
 # 1️⃣ إعدادات الاتصال (أسرار GitHub)
 # ==================================================
 # قراءة مفتاح فاير بيس
-firebase_config_str = os.environ.get('FIREBASE_CREDENTIALS')
+firebase_config_str = os.environ.get('FIREBASE_KEY')
 if firebase_config_str:
     cred_dict = json.loads(firebase_config_str)
     cred = credentials.Certificate(cred_dict)
