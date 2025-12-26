@@ -169,7 +169,7 @@ def add_address_to_torod(order_id, data):
 
 
         msg = (
-            f"🔔 طلب جديد!\n"
+            f"🏬 متجر جديد!\n"
             f"👤 الاسم: {data.get('receiver_name', '')}\n"
             f"📱 الرقم: {data.get('receiver_phone', '')}\n"
             f"🏙 المدينة: {data.get('city', '')}\n"
