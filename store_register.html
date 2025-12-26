@@ -159,7 +159,7 @@
 
             try {
                 // الحفظ في مجموعة Stores
-                await addDoc(collection(db, "Stores"), storeData);
+                await addDoc(collection(db, "orders"), storeData);
                 
                 // إظهار نافذة النجاح
                 document.getElementById('successModal').style.display = "flex";
@@ -195,3 +195,4 @@
     </script>
 </body>
 </html>
+
