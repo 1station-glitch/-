@@ -82,11 +82,11 @@ def get_next_sequence_code():
     doc_ref = db.collection('settings').document('counter')
     try:
         doc = doc_ref.get()
-        current = doc.to_dict().get('value', 1) if doc.exists else 1
+        current = doc.to_dict().get('value', 0) if doc.exists else 0
         next_val = current + 1
         doc_ref.set({'value': next_val})
-        return str(next_val).zfill(4)
-    except: return "9999"
+        return str(next_val).zfill(6)
+    except: return "999999"
 
 # ==================================================
 # 3️⃣ البوت (النسخة الذكية)
