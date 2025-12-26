@@ -311,25 +311,6 @@
                 console.error('Error:', error);
                 citySelect.innerHTML = '<option value="">فشل تحميل القائمة</option>';
             });
-    });
-    
-    const cityParts = cityValue.split(' - ');
-    const cityName = cityParts[0] ? cityParts[0].trim() : "";
-    const regionName = cityParts[1] ? cityParts[1].trim() : "";
-
-            // تجهيز البيانات بنفس الأسماء اللي ينتظرها البوت في البايثون
-    const merchantData = {
-           store_name: storeName,         // اسم المتجر
-           receiver_name: storeName,      // البوت يستخدمه كاسم مستلم
-           receiver_phone: phone,         // رقم الجوال
-           city: cityName,                // المدينة فقط
-           region: regionName,            // المنطقة (للبحث الذكي)
-           district: district,            // الحي
-           street: street,                // الشارع
-           status: "pending",             // الحالة pending عشان البوت يصيدها
-           createdAt: new Date(),         // وقت التسجيل
-           type: "merchant_registration"  // للتمييز مستقبلاً
-            };
 
     /* المتغيرات والعناصر */
     const weightInput = document.getElementById("weight");
@@ -521,3 +502,4 @@
 
 </body>
 </html>
+
