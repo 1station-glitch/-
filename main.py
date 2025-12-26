@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import time
+import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
