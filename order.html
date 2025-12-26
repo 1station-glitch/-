@@ -23,11 +23,11 @@
 
     /* الصندوق الرئيسي */
     .container { 
-        width: 90%; /* عرض مرن للجوال */
+        width: 90%; 
         max-width: 850px; 
         margin: 30px auto; 
         background: #ffffffee; 
-        padding: 30px 20px; /* هوامش مناسبة للجوال */
+        padding: 30px 20px; 
         border-radius: 20px; 
         box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
         box-sizing: border-box;
@@ -61,8 +61,8 @@
 
     /* تصغير خانة شركة الشحن قليلاً لتمييزها */
     #shippingCompany {
-        height: 45px !important; /* ارتفاع أقل قليلاً */
-        background-color: #f0f4f8 !important; /* لون مختلف قليلاً ليدل أنها للاختيار */
+        height: 45px !important; 
+        background-color: #f0f4f8 !important; 
         cursor: pointer;
     }
 
@@ -89,15 +89,16 @@
         transition: all 0.3s ease; 
     }
     button:active { transform: scale(0.98); }
+    button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
     /* المودالات */
     #thankYouModal, #branchesModal, #shippingTypeModal, #aramexWarningModal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(2px); }
     #thankYouModalContent, #branchesModalContent, #shippingTypeContent, #aramexWarningContent { 
         background-color: #fff; 
-        margin: 15vh auto; /* توسط عمودي أفضل للجوال */
+        margin: 15vh auto; 
         padding: 25px; 
         border-radius: 20px; 
-        width: 90%; /* عرض كامل في الجوال */
+        width: 90%; 
         max-width: 400px; 
         text-align: center; 
         color: #1f1c2c; 
@@ -120,14 +121,13 @@
     .note { background: #e0f7fa; border: 1px solid #00acc1; color: #006064; }
     .warning { background: #ffebee; border: 1px solid #d32f2f; color: #b71c1c; }
 
-    /* ميديا كويري خاص جداً لـ iPhone SE والشاشات الصغيرة */
+    /* ميديا كويري للجوالات الصغيرة */
     @media only screen and (max-width: 380px) {
         .container { padding: 20px 15px; margin: 15px auto; width: 95%; }
         h2 { font-size: 20px; margin-bottom: 20px; }
         .logo-wrapper img { width: 80px; height: 80px; }
         input, select { font-size: 13px !important; }
         button { font-size: 14px; padding: 12px; }
-        /* تصغير إضافي لخانة الشحن في الشاشات الصغيرة جداً */
         #shippingCompany { height: 42px !important; font-size: 13px !important; }
     }
 </style>
@@ -313,15 +313,13 @@
             });
     });
 
-    /* المتغيرات */
+    /* المتغيرات والعناصر */
     const weightInput = document.getElementById("weight");
     const companyInput = document.getElementById("shippingCompany");
     const priceNote = document.getElementById("priceNote");
     const weightWarning = document.getElementById("weightWarning");
     const redboxNote = document.getElementById("redboxNote");
     const brolloNote = document.getElementById("brolloNote");
-    const form = document.getElementById("shippingForm");
-    const modal = document.getElementById("thankYouModal");
     const shippingTypeModal = document.getElementById('shippingTypeModal');
     const companyOptions = document.getElementById('companyOptions');
     const companyButtons = document.getElementById('companyButtons');
@@ -332,32 +330,24 @@
         e.preventDefault();
         shippingTypeModal.style.display = 'block';
         companyOptions.style.display = 'none';
-        this.blur(); // اخفاء الكيبورد في الجوال
+        this.blur();
     });
 
     /* عرض خيارات الشركات */
-    function showCompanyOptions(type){
+    window.showCompanyOptions = function(type){
         companyOptions.style.display = 'block';
         companyButtons.innerHTML = '';
 
         document.querySelectorAll('.shipping-option').forEach(el => el.classList.remove('selected'));
-        // إضافة كلاس التحديد للعنصر المضغوط
         const options = document.querySelectorAll('.shipping-option');
         if(type === 'dry') options[0].classList.add('selected');
         if(type === 'cold') options[1].classList.add('selected');
         if(type === 'pickup') options[2].classList.add('selected');
 
-        if(type === 'dry'){
-            addCompanyBtn('aramex.png', 'aramex');
-        }
-        if(type === 'cold'){
-            addCompanyBtn('prolo.png', 'prolo');
-        }
-        if(type === 'pickup'){
-            addCompanyBtn('redbox.png', 'redbox');
-        }
+        if(type === 'dry') addCompanyBtn('aramex.png', 'aramex');
+        if(type === 'cold') addCompanyBtn('prolo.png', 'prolo');
+        if(type === 'pickup') addCompanyBtn('redbox.png', 'redbox');
         
-        // سكرول ناعم للأسفل في المودال عشان يشوف الشركات
         document.getElementById('shippingTypeContent').scrollTo({ top: 1000, behavior: 'smooth' });
     }
 
@@ -369,11 +359,10 @@
         companyButtons.appendChild(img);
     }
 
-    /* اختيار الشركة - التعديل الجديد */
-    function selectCompany(company){
+    /* اختيار الشركة */
+    window.selectCompany = function(company){
         if(company === "aramex"){
             pendingCompany = "aramex";
-            // 🔥 هنا التغيير: إخفاء نافذة الاختيار فوراً قبل إظهار التحذير
             shippingTypeModal.style.display = 'none'; 
             document.getElementById("aramexWarningModal").style.display = "block";
             return;
@@ -384,13 +373,13 @@
         updatePriceNote();
     }
 
-    function confirmAramexWarning(){
+    window.confirmAramexWarning = function(){
         companyInput.value = pendingCompany;
         document.getElementById("aramexWarningModal").style.display = "none";
         updatePriceNote();
     }
 
-    function closeShippingType(){
+    window.closeShippingType = function(){
         shippingTypeModal.style.display = 'none';
     }
 
@@ -431,23 +420,85 @@
 
     weightInput.addEventListener("input", updatePriceNote);
 
-    /* المودالات الأخرى */
-    function closeModal(){ modal.style.display = "none"; }
-    function showBranches(){ document.getElementById('branchesModal').style.display = 'block'; }
-    function closeBranches(){ document.getElementById('branchesModal').style.display = 'none'; }
+    /* دوال المودالات (Global) */
+    window.closeModal = function(){ document.getElementById("thankYouModal").style.display = "none"; }
+    window.showBranches = function(){ document.getElementById('branchesModal').style.display = 'block'; }
+    window.closeBranches = function(){ document.getElementById('branchesModal').style.display = 'none'; }
+</script>
 
-    form.addEventListener("submit", function(e){
-        e.preventDefault();
-        const weight = Number(weightInput.value);
-        const company = companyInput.value;
+<script type="module">
+  // استيراد المكتبات
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        if(company === "redbox" && weight > 15){
-            alert("عذراً، الوزن الزائد غير مسموح في ريد بوكس");
-            return;
-        }
-        modal.style.display = "block";
-        setTimeout(() => { form.submit(); }, 2000);
-    });
+  // 🔴🔴🔴🔴🔴 ضع بيانات فايربيس الخاصة بك هنا 🔴🔴🔴🔴🔴
+ const firebaseConfig = {
+       apiKey: "AIzaSyDuzHaoq7AgzahbqB0Ud5YWL3B3y__wJi4",
+       authDomain: "my-dashboard-d7e5f.firebaseapp.com",
+       projectId: "my-dashboard-d7e5f",
+       storageBucket: "my-dashboard-d7e5f.firebasestorage.app",
+       messagingSenderId: "33578225090",
+       appId: "1:33578225090:web:b6b339bd56dfde1a9f5a5b"
+        };
+
+  // تشغيل التطبيق
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const form = document.getElementById("shippingForm");
+  const modal = document.getElementById("thankYouModal");
+  const weightInput = document.getElementById("weight");
+  const companyInput = document.getElementById("shippingCompany");
+
+  // دالة الإرسال لفايربيس
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault(); 
+
+    // التحقق من ريد بوكس
+    const weight = Number(weightInput.value);
+    const company = companyInput.value;
+    if (company === "redbox" && weight > 15) {
+      alert("🚨 الوزن غير مسموح لشركة ريد بوكس!");
+      return;
+    }
+
+    // قفل الزر وتغيير النص
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const oldText = submitBtn.innerText;
+    submitBtn.innerText = "جاري الإرسال...";
+    submitBtn.disabled = true;
+    submitBtn.style.background = "#ccc";
+
+    try {
+      // 1. تجميع البيانات
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+      
+      data.createdAt = serverTimestamp(); // وقت الطلب
+      data.status = "new"; // حالة الطلب
+
+      // 2. الحفظ في فايربيس (مجموعة Shipments)
+      await addDoc(collection(db, "Shipments"), data);
+
+      // 3. النجاح
+      console.log("تم الإرسال لـ Shipments بنجاح");
+      form.reset(); // مسح الحقول
+      $('#city_select').val(null).trigger('change'); // تصفير قائمة المدن
+      document.getElementById("priceNote").style.display = "none"; // إخفاء السعر
+      
+      modal.style.display = "block"; // إظهار رسالة الشكر
+
+    } catch (error) {
+      console.error("Error:", error);
+      alert("حدث خطأ أثناء الإرسال، يرجى التأكد من الإنترنت والمحاولة مرة أخرى.");
+    } finally {
+      // إعادة الزر لوضعه الطبيعي
+      submitBtn.innerText = oldText;
+      submitBtn.disabled = false;
+      submitBtn.style.background = "linear-gradient(135deg, #6c63ff, #3f3d56)";
+    }
+  });
 </script>
 
 </body>
