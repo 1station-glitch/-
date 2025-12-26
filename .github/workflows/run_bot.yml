@@ -1,39 +1,32 @@
-name: تشغيل بوت طرود
+name: 1Station Bot Runner
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch:
+    - cron: '*/5 * * * *'  # تشغيل كل 5 دقائق
+  workflow_dispatch:      # زر للتشغيل اليدوي
 
 jobs:
-  run-bot:
+  run-script:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
           python-version: '3.10'
 
-      - name: Install libraries
-        run: pip install selenium webdriver-manager firebase-admin
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
 
-      - name: Run Python Script
+      - name: Run Bot
         env:
+          FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
           TOROD_EMAIL: ${{ secrets.TOROD_EMAIL }}
           TOROD_PASSWORD: ${{ secrets.TOROD_PASSWORD }}
-          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
-
-      # 👇👇👇 هذه الخطوة الجديدة لرفع الصور 👇👇👇
-      - name: Upload Screenshots
-        if: always() # ارفع الصور حتى لو فشل البوت
-        uses: actions/upload-artifact@v4
-        with:
-          name: bot-screenshots
-          path: "*.png"
