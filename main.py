@@ -162,7 +162,7 @@ def add_address_to_torod(order_id, data):
             except: pass
 
         fill("merchant_address_form_address_details", f"حي {data.get('district','')} {data.get('street','')}")
-        fill("merchant_address_form_name", "1station")
+        fill("merchant_address_form_name", "متجر ستارلي")
         fill("merchant_address_form_contact_name", f"{data.get('receiver_name', '')}")
         fill("merchant_address_form_phone_number", data.get('receiver_phone', ''))
         fill("merchant_address_form_email", "noon53281@gmail.com")
