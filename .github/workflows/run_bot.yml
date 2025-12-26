@@ -2,7 +2,7 @@ name: تشغيل بوت طرود
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -26,4 +26,6 @@ jobs:
           TOROD_EMAIL: ${{ secrets.TOROD_EMAIL }}
           TOROD_PASSWORD: ${{ secrets.TOROD_PASSWORD }}
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
