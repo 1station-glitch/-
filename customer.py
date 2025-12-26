@@ -165,7 +165,7 @@ def add_address_to_torod(order_id, data):
         # 2. تعبئة الخانات النصية
         fill("customer_form_name", data.get('receiver_name', ''))
         fill("customer_form_phone", data.get('receiver_phone', ''))
-        fill("customer_form_address_details", f"حي {data.get('district','')} - {data.get('street','')}")
+        fill("customer_form_address_details", f"حي {data.get('receiver_district','')} - {data.get('receiver_street','')}")
 
         # 3. اختيار المدينة (القائمة المنسدلة)
         try:
