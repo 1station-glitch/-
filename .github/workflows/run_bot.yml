@@ -1,32 +1,29 @@
-name: 1Station Bot Runner
+name: تشغيل بوت طرود
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # تشغيل كل 5 دقائق
-  workflow_dispatch:      # زر للتشغيل اليدوي
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
-  run-script:
+  run-bot:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'  # 👈 غيرناها من 3.9 إلى 3.10
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+      - name: Install libraries
+        run: pip install selenium webdriver-manager firebase-admin
 
-      - name: Run Bot
+      - name: Run Python Script
         env:
-          FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
           TOROD_EMAIL: ${{ secrets.TOROD_EMAIL }}
           TOROD_PASSWORD: ${{ secrets.TOROD_PASSWORD }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         run: python main.py
