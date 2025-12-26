@@ -435,89 +435,20 @@
     function closeModal(){ modal.style.display = "none"; }
     function showBranches(){ document.getElementById('branchesModal').style.display = 'block'; }
     function closeBranches(){ document.getElementById('branchesModal').style.display = 'none'; }
+
+    form.addEventListener("submit", function(e){
+        e.preventDefault();
+        const weight = Number(weightInput.value);
+        const company = companyInput.value;
+
+        if(company === "redbox" && weight > 15){
+            alert("عذراً، الوزن الزائد غير مسموح في ريد بوكس");
+            return;
+        }
+        modal.style.display = "block";
+        setTimeout(() => { form.submit(); }, 2000);
     });
-    </script>
-    
-<script type="module">
-  // استيراد مكتبات فايربيس
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  // 🔴 ضع إعدادات مشروعك هنا (انسخها من Firebase Console)
-  const firebaseConfig = {
-    apiKey: "ضع_المفتاح_هنا",
-    authDomain: "xxxx.firebaseapp.com",
-    projectId: "xxxx",
-    storageBucket: "xxxx.appspot.com",
-    messagingSenderId: "xxxx",
-    appId: "xxxx"
-  };
-
-  // تشغيل فايربيس
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // تعريف العناصر
-  const form = document.getElementById("shippingForm");
-  const modal = document.getElementById("thankYouModal");
-  const weightInput = document.getElementById("weight");
-  const companyInput = document.getElementById("shippingCompany");
-
-  // دالة الإرسال عند الضغط على الزر
-  form.addEventListener("submit", async function(e) {
-    e.preventDefault(); // منع تحديث الصفحة
-
-    // التحقق من شرط ريد بوكس
-    const weight = Number(weightInput.value);
-    const company = companyInput.value;
-
-    if (company === "redbox" && weight > 15) {
-      alert("🚨 الوزن غير مسموح لشركة ريد بوكس!");
-      return;
-    }
-
-    // تغيير نص الزر ليعرف المستخدم أنه جاري الإرسال
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const oldText = submitBtn.innerText;
-    submitBtn.innerText = "جاري الإرسال...";
-    submitBtn.disabled = true;
-
-    try {
-      // 1. تجميع البيانات من الحقول
-      const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => data[key] = value);
-      
-      // إضافة الوقت وتاريخ الطلب
-      data.createdAt = serverTimestamp(); 
-      data.status = "new"; 
-
-      // ✅ التعديل هنا: الإرسال إلى مجموعة باسم "Shipments"
-      await addDoc(collection(db, "Shipments"), data);
-
-      // 3. نجاح الإرسال
-      console.log("تم الإرسال إلى Shipments بنجاح");
-      form.reset();
-      modal.style.display = "block";
-
-    } catch (error) {
-      console.error("Error:", error);
-      alert("حدث خطأ، تأكد من الاتصال بالإنترنت");
-    } finally {
-      // إرجاع الزر لوضعه الطبيعي
-      submitBtn.innerText = oldText;
-      submitBtn.disabled = false;
-    }
-  });
-
-  // جعل دالة إغلاق المودال متاحة للصفحة
-  window.closeModal = function() {
-    modal.style.display = "none";
-  }
 </script>
 
 </body>
 </html>
-
-
-
