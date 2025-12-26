@@ -15,6 +15,17 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+def send_telegram_msg(text):
+    token = os.environ.get("TELEGRAM_BOT_TOKEN") 
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+    
+    if token and chat_id:
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        try:
+            requests.post(url, data={"chat_id": chat_id, "text": text})
+            print("✅ تم إرسال التلقرام")
+        except Exception as e:
+            print(f"❌ خطأ تلقرام: {e}")
 # ==================================================
 # 1️⃣ كشف المكان (جهازك ولا السيرفر؟) 🕵️‍♂️
 # ==================================================
@@ -153,8 +164,19 @@ def add_address_to_torod(order_id, data):
         fill("merchant_address_form_name", "1station")
         fill("merchant_address_form_contact_name", f"{data.get('receiver_name', '')}")
         fill("merchant_address_form_phone_number", data.get('receiver_phone', ''))
-        fill("merchant_address_form_email", data.get('email', 'c@example.com'))
+        fill("merchant_address_form_email", "noon53281@gmail.com")
 
+
+        msg = (
+            f"🔔 طلب جديد!\n"
+            f"👤 الاسم: {data.get('receiver_name', '')}\n"
+            f"📱 الرقم: {data.get('receiver_phone', '')}\n"
+            f"🏙 المدينة: {data.get('city', '')}\n"
+            f"🏘 الحي: {data.get('district', '')}\n"
+            f"🛣 الشارع: {data.get('street', '')}"
+        )
+        send_telegram_msg(msg)
+        
         # ============================================================
         # 🔥 الحل لمشكلة زر الحفظ 🔥
         # ============================================================
