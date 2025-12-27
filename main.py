@@ -6,7 +6,7 @@ import time
 import random
 import re
 import requests # مكتبة لإرسال رسائل تليقرام
-
+FIREBASE_CREDENTIALS
 # ======================================================
 # ⚙️ إعدادات التليقرام (عدلها هنا)
 # ======================================================
@@ -31,9 +31,13 @@ def send_telegram_msg(message):
 # ======================================================
 def init_firebase():
     if not firebase_admin._apps:
-        cred = credentials.Certificate("serviceAccountKey.json")
+        cred_path = os.environ.get("FIREBASE_CREDENTIALS")
+        if not cred_path:
+            raise Exception("FIREBASE_CREDENTIALS غير موجود")
+        cred = credentials.Certificate(cred_path)
         firebase_admin.initialize_app(cred)
     return firestore.client()
+
 
 def normalize_arabic(text):
     """تنظيف النصوص العربية للمطابقة الذكية"""
@@ -186,3 +190,4 @@ def start_bot():
 if __name__ == "__main__":
 
     start_bot()
+
