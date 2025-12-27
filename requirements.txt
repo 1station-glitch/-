@@ -1,4 +1,5 @@
-selenium
 webdriver-manager
+playwright
 firebase-admin
 requests
+google-cloud-firestore
