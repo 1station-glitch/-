@@ -1,31 +1,33 @@
-name: تشغيل بوت طرود
+name: بوت اضافة متجر
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch:
+    - cron: '*/5 * * * *'  # يشتغل تلقائياً كل 30 دقيقة
+  workflow_dispatch:      # يسمح لك بتشغيله يدوياً بضغط زر
 
 jobs:
-  run-bot:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # 👈 غيرناها من 3.9 إلى 3.10
+          python-version: '3.10'
 
-      - name: Install libraries
-        run: pip install selenium webdriver-manager firebase-admin
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
 
-      - name: Run Python Script
+      - name: Run Bot
         env:
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TOROD_EMAIL: ${{ secrets.TOROD_EMAIL }}
           TOROD_PASSWORD: ${{ secrets.TOROD_PASSWORD }}
-          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
