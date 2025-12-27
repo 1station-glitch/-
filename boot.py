@@ -1,11 +1,4 @@
 import os
-# إلغاء البروكسي لهذا السكربت فقط
-os.environ['http_proxy'] = ''
-os.environ['https_proxy'] = ''
-os.environ['HTTP_PROXY'] = ''
-os.environ['HTTPS_PROXY'] = ''
-
-# ... باقي الكود
 import firebase_admin
 from firebase_admin import credentials, firestore
 from playwright.sync_api import sync_playwright
@@ -191,4 +184,5 @@ def start_bot():
         browser.close()
 
 if __name__ == "__main__":
+
     start_bot()
