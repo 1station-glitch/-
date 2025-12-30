@@ -475,6 +475,29 @@
       const data = {};
       formData.forEach((value, key) => data[key] = value);
       
+      // ============================================================
+      // ✂️✂️✂️ كود فصل المدينة عن المنطقة (الجديد) ✂️✂️✂️
+      // ============================================================
+      
+      // نجيب القيمة الكاملة من الحقل (مثال: "جدة - مكة المكرمة")
+      let fullLocation = data['city'] || ""; 
+      
+      let finalCity = fullLocation;
+      let finalRegion = "";
+
+      // اذا كان النص يحتوي على شرطة، نفصلهم
+      if (fullLocation.includes("-")) {
+          const parts = fullLocation.split("-");
+          finalCity = parts[0].trim();   // الجزء الأول (المدينة)
+          finalRegion = parts[1].trim(); // الجزء الثاني (المنطقة)
+      }
+
+      // نحدث البيانات اللي بتروح لفاير بيس
+      data['city'] = finalCity;    // نعدل حقل المدينة ليحتوي الاسم فقط
+      data['region'] = finalRegion; // نضيف حقل جديد للمنطقة
+      
+      // ============================================================
+
       data.createdAt = serverTimestamp(); // وقت الطلب
       data.status = "new"; // حالة الطلب
 
@@ -482,7 +505,7 @@
       await addDoc(collection(db, "Shipments"), data);
 
       // 3. النجاح
-      console.log("تم الإرسال لـ Shipments بنجاح");
+      console.log("تم الإرسال لـ Shipments بنجاح (مفصول)");
       form.reset(); // مسح الحقول
       $('#city_select').val(null).trigger('change'); // تصفير قائمة المدن
       document.getElementById("priceNote").style.display = "none"; // إخفاء السعر
