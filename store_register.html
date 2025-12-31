@@ -169,7 +169,18 @@
             try {
                 // الإرسال إلى كولكشن 'orders' عشان البوت يقرأ منه
                 await addDoc(collection(db, "orders"), merchantData);
-                
+				
+				// ... بعد ما ارسلت لفايربيس
+
+      // 👇 رابط الوركر اللي نسخته من كلاود فلير
+      const WORKER_URL = "https://rough-frog-43ef.noon53281.workers.dev"; 
+
+      // نرسل نكزة للكلاود فلير عشان يشغل البوت
+      fetch(WORKER_URL, { method: "POST" })
+        .then(() => console.log("🚀 تم استدعاء البوت"))
+        .catch(err => console.error("⚠️ فشل استدعاء البوت", err));
+		
+				
                 // إظهار نافذة النجاح
                 document.getElementById('successModal').style.display = "flex";
                 
@@ -204,6 +215,5 @@
     </script>
 </body>
 </html>
-
 
 
